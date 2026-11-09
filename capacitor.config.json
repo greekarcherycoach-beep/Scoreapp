@@ -1,0 +1,7 @@
+{
+  "appId": "gr.archerylab.scoreapp",
+  "appName": "Score App",
+  "webDir": "www",
+  "backgroundColor": "#090c13",
+  "server": { "androidScheme": "https" }
+}

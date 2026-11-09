@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="el"><head><meta charset="utf-8">
+<meta name="theme-color" content="#090c13"><meta name="mobile-web-app-capable" content="yes"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Archery Lab – Score App</title>
+<style>
+:root{--bg:#090c13;--fg:#f2f4f8;--card:#151a25;--ac:#ffb81f;--acf:#1a1200;--mut:#98a2b3;--bd:#262e3e;--g1:#ffc22e;--g2:#ff8a00;--glow:#3a2a0a;--glow2:#12285a;--grid:#ffffff0a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--bg:#f5f2ea;--fg:#1b1d22;--card:#fff;--ac:#d97800;--acf:#1a1200;--mut:#6b7280;--bd:#e0dccf;--glow:#ffe3a8;--glow2:#dfe8ff;--grid:#0000000a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:radial-gradient(70% 35% at 100% 0,var(--glow),transparent),radial-gradient(60% 30% at 0 100%,var(--glow2),transparent),linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:900px;margin:0 auto;padding:12px}
+h1{font-size:20px;margin:4px 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:110px}
+label{display:block;font-size:13px;color:var(--mut)}
+input,select{width:100%;font:inherit;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg)}
+button{font:inherit;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+button.p{background:var(--ac);color:var(--acf);border-color:var(--ac);font-weight:600}
+button.d{color:#c0392b}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.bar button{flex:1;min-width:80px;padding:8px 6px;font-size:14px}
+#st{font-size:13px;color:var(--mut);margin:4px 0 10px}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}
+td,th{padding:6px 8px;text-align:center;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font-size:12px;color:var(--mut);font-weight:500}td.l,th.l{text-align:left}
+tr.cu td{background:color-mix(in srgb,var(--ac) 14%,transparent)}
+.rk td{font-size:18px}.rk td.n{font-weight:700}
+.tabs{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.tabs button{flex:1;min-width:84px;font-size:14px}.tabs button.on{background:var(--ac);color:var(--acf);border-color:var(--ac)}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.pad button{height:56px;font-size:22px;font-weight:700;border:2px solid #0003}
+.g{background:#f5c518;color:#222}.r{background:#d9342b;color:#fff}.b{background:#2f7fd6;color:#fff}
+.k{background:#2a2a2a;color:#fff}.w{background:#f4f4f4;color:#222}.m{background:#8b8f89;color:#fff}
+.big{font-size:28px;font-weight:700}.mut{color:var(--mut);font-size:13px}
+.cell{display:inline-block;min-width:30px;padding:2px 5px;border-radius:6px;font-weight:700}
+textarea{width:100%;font:12px monospace;margin:6px 0;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg)}
+.ov{position:fixed;inset:0;background:#000a;z-index:9;overflow:auto;padding:max(12px,env(safe-area-inset-top,0px)) 12px 12px}.ov .card{max-width:460px;margin:0 auto}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.tile{border-radius:16px;padding:14px 16px;position:relative;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 2px 8px #0003;transition:transform .3s}
+.tr{position:absolute;top:8px;right:14px;font-size:44px;font-weight:800;opacity:.9;line-height:1}
+.tn{font-size:20px;font-weight:700;padding-right:56px;overflow:hidden;text-overflow:ellipsis}
+.ts{font-size:52px;font-weight:800;line-height:1.05}.tm{font-size:12px;opacity:.85}
+button.p,.tabs button.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#1a1200;border-color:#ffb020}
+.card{border-radius:18px}button{border-radius:12px}
+.hd{text-align:center;padding:14px 0 10px;position:relative}
+.brand{font-size:40px;font-weight:800;color:var(--g1);letter-spacing:-.5px;line-height:1.1}
+.sub{font-size:22px;font-weight:600;margin-top:2px}
+.hd.sm{padding:4px 0 8px}.hd.sm .brand{font-size:26px}.hd.sm .sub{font-size:14px;color:var(--mut)}
+.tb{position:absolute;top:6px;right:0;display:flex;gap:6px}.tb button{padding:6px 10px;font-size:18px;border-radius:10px}
+.hc{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px;border-radius:22px;margin-bottom:14px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
+.hc.p{background:linear-gradient(135deg,var(--g1),var(--g2));color:#1a1200;border-color:#ffb020}
+.hc i{font-style:normal;font-size:30px;width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#0002;flex:none}
+.hc:not(.p) i{background:#ffffff0d}
+.hc b{display:block;font-size:22px}.hc small{display:block;font-size:14px;opacity:.8;margin-top:2px}.hc span{margin-left:auto;font-size:28px;opacity:.7}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.chips span{padding:8px 14px;border:1px solid var(--bd);border-radius:20px;background:var(--card);font-size:14px}
+html{-webkit-text-size-adjust:100%}button{touch-action:manipulation;-webkit-user-select:none;user-select:none}input,select,textarea{font-size:16px}
+#app{max-width:760px}
+.padw{position:sticky;bottom:0;padding:6px 0 4px;background:linear-gradient(transparent,var(--bg) 18%);z-index:2}.padw .pad{margin:0}
+.v-score #prank,.v-res #pscore{display:none}
+@media(min-width:700px){#app{max-width:980px;padding:18px}.brand{font-size:46px}.pad button{height:68px;font-size:26px}.tiles{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}.ts{font-size:60px}}
+@media(min-width:1000px){#app{max-width:1500px}.tg{display:grid;grid-template-columns:minmax(380px,5fr) 6fr;gap:16px;align-items:start}
+.v-score #prank,.v-res #pscore{display:block}.tt{display:none!important}#prank{position:sticky;top:8px}.tiles{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}.pad button{height:76px;font-size:28px}}
+@media(max-height:520px) and (orientation:landscape){.pad{grid-template-columns:repeat(6,1fr)}.pad button{height:46px;font-size:18px}.hd{padding:2px 0}.brand{font-size:22px}.sub{display:none}}
+@media(max-width:400px){.brand{font-size:34px}.pad button{height:52px}.tiles{grid-template-columns:1fr 1fr;gap:8px}.ts{font-size:40px}.tr{font-size:32px}.tn{font-size:16px;padding-right:36px}}
+.kr{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}.kr button{padding:6px 8px;min-width:40px;font-weight:700;border:1px solid #0003}
+#pr{display:none}.pt{border-collapse:collapse;width:100%;margin:6px 0 14px}.pt td,.pt th{border:1px solid #888;padding:3px 8px;text-align:center}
+@media print{body{background:#fff!important;color:#000!important}#app,#md{display:none!important}#pr{display:block!important;font:13px system-ui,sans-serif;color:#000}.pg{page-break-inside:avoid}}
+#fsr{display:none;position:fixed;inset:0;z-index:30;flex-direction:column;padding-top:env(safe-area-inset-top,0px);background:var(--bg)}#fsr.on{display:flex}
+.fb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid var(--bd)}.fb button{padding:8px 12px}.brand2{font-weight:800;color:var(--g1);font-size:20px;margin-right:auto}
+.fbody{flex:1;min-height:0;display:grid;gap:14px;padding:12px}.fc{overflow-y:auto;min-height:0;padding-right:4px}
+.fc h2{margin:0 0 6px;font-size:22px;color:var(--g1);position:sticky;top:0;background:var(--bg);z-index:1;padding:4px 0}
+.gh{margin:12px 0 6px;font-size:16px;color:var(--mut)}
+@media print{#fsr{display:none!important}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;min-height:34px}.top .mut{text-align:right;font-size:12px}
+.lk{border:0;background:none;color:var(--g1);padding:6px 2px;font-weight:700;white-space:nowrap}
+.seg{display:flex;gap:3px;padding:3px;margin-bottom:10px;background:var(--card);border:1px solid var(--bd);border-radius:14px}
+.seg button{flex:1;border:0;background:transparent;padding:9px 6px;font-size:14px;border-radius:11px}.seg button.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#1a1200;font-weight:700}
+.tabs button{flex:1 0 auto;min-width:0;padding:7px 12px;font-size:14px}.tabs{margin-bottom:8px}
+details.card>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
+details.card>summary::-webkit-details-marker{display:none}details.card>summary::after{content:'▾';color:var(--mut)}details.card[open]>summary::after{content:'▴'}
+summary .mut{font-weight:400;margin-left:auto;font-size:12px}
+.ib{display:flex;gap:6px;flex:0 0 auto}.ib button{padding:8px 11px;font-size:16px}.lb{display:none;font-size:14px}@media(min-width:700px){.lb{display:inline}}
+.row>.ib{flex:0 0 auto;min-width:0}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.mg button{padding:14px 8px;font-size:15px}
+.gh{display:flex;align-items:center;gap:8px;margin:20px 0 10px;padding:9px 14px;border-left:6px solid var(--g1);background:var(--card);border-radius:0 12px 12px 0;font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--g1)}
+.gh.m{border-color:#3b82f6;color:#6aa5ff}.gh.f{border-color:#ec4899;color:#f472b6}
+.tile.team{border:3px solid #ffffff55;min-height:150px}.tile.team .tn{font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;line-height:1.1}
+.bd{font-size:11px;letter-spacing:3px;font-weight:700;opacity:.75}
+.ico{display:flex;justify-content:center;margin:4px 0 22px}.ico svg{width:96px;height:96px;filter:drop-shadow(0 0 18px #ff9a0a66)}
+.br{display:flex;gap:18px;overflow-x:auto;padding:4px 2px 14px;align-items:stretch}
+.bc{display:flex;flex-direction:column;justify-content:space-around;gap:12px;min-width:215px}
+.bc h4{margin:0;font-size:13px;color:var(--g1);text-transform:uppercase;letter-spacing:1px;text-align:center}
+.mc{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer}.mc.dim{opacity:.55;cursor:default}
+.mc .pl{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--bd);font-size:14px}.mc .pl:last-child{border:0}
+.mc .pl.w{background:color-mix(in srgb,var(--g1) 20%,transparent);font-weight:700}.mc .pl.dim{color:var(--mut)}
+.sd{font-size:11px;color:var(--mut);width:18px}.pn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt2{font-weight:800;min-width:18px;text-align:right}.pt2 sup{font-size:9px;color:var(--g1)}
+.ks{overflow-x:auto}.ks button{flex:1 0 auto;white-space:nowrap}
+.ql{margin:6px 0 12px;padding-left:24px;columns:2}.medals{font-size:18px;text-align:center}
+.dotA,.dotB{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex:none}.dotA{background:#d9342b}.dotB{background:#2f7fd6}
+.vs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.big2{font-size:26px;margin:0 6px}.win{font-weight:800;color:var(--g1);font-size:18px}
+.ov .card.wide{max-width:720px}.mt{width:auto;margin:0 auto}.mt td{padding:4px 5px}.mt td.cu{outline:2px solid var(--g1);border-radius:6px}
+#tt{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:60;display:flex;gap:12px;align-items:center;background:#1f2533;color:#f2f4f8;border:1px solid #333c52;border-radius:14px;padding:10px 14px;box-shadow:0 8px 30px #0008;max-width:92vw;transition:opacity .25s,transform .25s;font-size:15px}
+#tt.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#tt button{padding:6px 12px;min-height:0;background:linear-gradient(135deg,var(--g1),var(--g2));color:#1a1200;border:0;font-weight:700}
+.ov .card.sm{max-width:420px}.dg{background:#c0392b;color:#fff;border-color:#c0392b}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.ck{display:flex;gap:8px;align-items:center;padding:8px 0;color:var(--fg);font-size:15px}.ck input{width:auto;min-height:0}.chk{max-height:45vh;overflow:auto}
+.steps{display:flex;align-items:center;gap:6px;margin-bottom:10px}.steps i{flex:1;height:2px;background:var(--bd)}
+.dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--bd);font-size:14px}
+.dot.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#1a1200;border-color:transparent}.dot.dn{background:var(--ac);color:var(--acf)}
+.wt{display:block;font-size:20px;margin-bottom:10px}
+.pre{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pre button{text-align:left;padding:12px;display:flex;flex-direction:column;gap:2px}.pre button small{color:var(--mut);font-size:12px}.pre button.on{border-color:var(--g1);box-shadow:0 0 0 2px var(--g1) inset}
+.sum{display:grid;gap:8px;margin-bottom:12px}.sum div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg);border-radius:12px}.sum span{color:var(--mut)}
+.pstep{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--g1);margin-bottom:4px;text-transform:uppercase}
+.pair ol{padding-left:20px;margin:6px 0}.pair details{margin:8px 0;color:var(--mut);font-size:14px}.pair li{margin:4px 0}
+.spin{width:34px;height:34px;border:4px solid var(--bd);border-top-color:var(--g1);border-radius:50%;animation:sp 1s linear infinite;margin:14px auto 4px}@keyframes sp{to{transform:rotate(360deg)}}
+.li2{cursor:pointer;display:flex;flex-direction:column;gap:6px}.pod{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.st4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.st4 div{background:var(--bg);border-radius:12px;padding:8px 10px}.st4 span{display:block;font-size:11px;color:var(--mut)}.st4 b{font-size:20px}
+.empty{text-align:center;padding:30px 16px}.big2e{font-size:44px}
+@media(min-width:700px){.st4{grid-template-columns:repeat(4,1fr)}}
+.ts.pop{animation:pop .6s}@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
+.ov .card{animation:pin .18s ease-out}@keyframes pin{from{opacity:0;transform:translateY(10px) scale(.98)}}
+button:active{transform:scale(.97)}.tile{will-change:transform}
+.cfw{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}.cf{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:cfall linear forwards}@keyframes cfall{to{transform:translateY(110vh) rotate(720deg)}}
+.medals{animation:glow 2.4s ease-in-out infinite alternate}@keyframes glow{from{box-shadow:0 0 0 #ffc22e00}to{box-shadow:0 0 28px #ffc22e55}}
+.chips .chip{padding:10px 16px;border-radius:22px;background:var(--card);border:1px solid var(--bd);min-height:40px;font-size:14px}
+.resume{margin-bottom:12px}
+button{min-height:44px}.seg button,.tabs button,.lk,.ib button,.top button,.kr button,.chips .chip{min-height:40px}.kr button{min-height:36px}.pad button{min-height:0}
+input,select{min-height:44px}input[type=checkbox],input[type=radio]{min-height:0;width:auto}textarea{border-radius:10px;padding:9px;font:inherit}
+:focus-visible{outline:2px solid var(--g1);outline-offset:2px}
+.card{padding:14px;margin-bottom:14px}
+@media(min-width:700px){body{font-size:17px}.card{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><div id="app"></div><div id="pr"></div><div id="tt"></div><div id="fsr"></div><div id="md"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const native=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()),P=n=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins[n];
+let fsN=false;
+async function saveFile(t,fn,ty){
+  if(native()&&P('Filesystem')&&P('Share')){try{const r=await P('Filesystem').writeFile({path:fn,data:t,directory:'CACHE',encoding:'utf8'});await P('Share').share({title:fn,url:r.uri,dialogTitle:'Αποθήκευση / κοινοποίηση αρχείου'});return}catch(e){if(/cancel/i.test((e&&e.message)||''))return;alert('Δεν ήταν δυνατή η αποθήκευση: '+((e&&e.message)||e))}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:ty}));a.download=fn;a.click()}
+let S={cfg:{name:'Αγώνας',ends:10,arrows:3,code:String(1000+Math.floor(Math.random()*9000)),sort:true},ath:{}},role=null,cur=0,room=null,conn='',peerN=0,pad=false,dev;
+try{dev=localStorage.getItem('dev')||Math.random().toString(36).slice(2,6);localStorage.setItem('dev',dev)}catch(e){dev=Math.random().toString(36).slice(2,6)}
+const val=v=>v==='X'?10:v==='M'?0:+v;
+const tot=a=>a.s.reduce((t,v)=>t+val(v),0);
+const cnt=(a,v)=>a.s.filter(x=>x===v).length;
+const cls=v=>({X:'g',10:'g',9:'g',8:'r',7:'r',6:'b',5:'b',4:'k',3:'k',2:'w',1:'w',M:'m'}[v]||'');
+const KEYS=['X','10','9','8','7','6','5','4','3','2','1','M'];
+const save=()=>{try{localStorage.setItem('arch',JSON.stringify({S,role}))}catch(e){}bkTick()};
+try{const d=JSON.parse(localStorage.getItem('arch')||'null');if(d){S=d.S;role=d.role}}catch(e){}
+const cap=x=>x?x.charAt(0).toUpperCase()+x.slice(1):x;
+const list=()=>Object.keys(S.ath).sort().map(id=>({id,...S.ath[id],n:cap(S.ath[id].n),t:(S.ath[id].t||'').toUpperCase()}));
+
+/* ---------- Σύνδεση μέσω QR (WebRTC, τοπικό δίκτυο, χωρίς internet) ---------- */
+let peers=[],pend=null,stream=null,scanT=null;
+const bcast=o=>{const t=JSON.stringify(o);peers.forEach(d=>{if(d.readyState==='open')d.send(t)})};
+const send=id=>bcast({t:'ath',id,a:S.ath[id]});
+const sendAll=()=>Object.keys(S.ath).forEach(send);
+let lost={};
+function updSt(){const e=$('#st');if(!e)return;const o=peers.filter(d=>d.readyState==='open');
+  if(role==='tablet'){const nm=o.map(d=>d.nm).filter(Boolean),ls=Object.keys(lost).filter(k=>!nm.includes(k));
+    e.innerHTML='Συνδεδεμένα κινητά: '+o.length+(nm.length?' ('+esc(nm.join(' | '))+')':'')+(ls.length?`<br>⚠ Χάθηκε η σύνδεση: <b>${esc(ls.join(' | '))}</b> – πάτα «➕ Κινητό (QR)» για επανασύνδεση. Τα σκορ που έχουν σταλεί διατηρούνται.`:'')}
+  else e.innerHTML=o.length?'🟢 Συνδεδεμένο με την ταμπλέτα':'🔴 Εκτός σύνδεσης – τα σκορ κρατούνται στο κινητό και στέλνονται μόλις συνδεθείς. <button class=p style="padding:6px 10px" onclick=phoneConn()>🔗 Επανασύνδεση</button>'}
+function wire(dc){
+  dc.seen=Date.now();peers.push(dc);
+  dc.onopen=()=>{dc.seen=Date.now();
+    if(role==='tablet'){bcast({t:'cfg',d:S.cfg});bcast({t:'need'})}
+    else{dc.send(JSON.stringify({t:'hi',n:list().map(a=>a.n).join(', ')}));sendAll();closeM();toast('✅ Συνδέθηκε με την ταμπλέτα')}
+    dc.iv=setInterval(()=>{if(dc.readyState!=='open'){clearInterval(dc.iv);return}dc.send('{"t":"p"}');if(Date.now()-dc.seen>15000)dc.close()},4000);updSt()};
+  dc.onclose=()=>{clearInterval(dc.iv);peers=peers.filter(x=>x!==dc);if(dc.nm)lost[dc.nm]=Date.now();updSt()};
+  dc.onmessage=e=>{dc.seen=Date.now();try{const m=JSON.parse(e.data);
+    if(m.t==='ath'&&role==='tablet'){const o=S.ath[m.id];if(o&&o.so!=null&&m.a.so==null)m.a.so=o.so;if(o&&o.ed){const ch=['n','t','tm','g'].some(k=>(m.a[k]||'')!==(o[k]||''));['n','t','tm','g'].forEach(k=>m.a[k]=o[k]);m.a.ed=1;if(ch)dc.send(JSON.stringify({t:'meta',id:m.id,m:{n:o.n,t:o.t,tm:o.tm,g:o.g}}))}S.ath[m.id]=m.a;save();renderRank()}
+    else if(m.t==='hi'&&role==='tablet'){dc.nm=m.n;delete lost[m.n];updSt();if($('#md .pair'))closeM();toast('✅ Συνδέθηκε: '+esc(m.n))}
+    else if(m.t==='meta'&&role==='tablet'){const a=S.ath[m.id];if(a){Object.assign(a,m.m);a.ed=1;save();renderRank()}}
+    else if(m.t==='meta'&&role==='phone'){const a=S.ath[m.id];if(a){Object.assign(a,m.m);save();render()}}
+    else if(m.t==='cfg'&&role==='phone'){S.cfg=m.d;save();render()}
+    else if(m.t==='need'&&role==='phone')sendAll()}catch(x){}}
+}
+const gather=pc=>new Promise(r=>{if(pc.iceGatheringState==='complete')return r();pc.onicegatheringstatechange=()=>pc.iceGatheringState==='complete'&&r();setTimeout(r,2500)});
+function pack(d){const t=d.sdp,g=r=>(t.match(r)||[])[1];
+  const fp=g(/a=fingerprint:sha-256 ([0-9A-Fa-f:]+)/).split(':').map(h=>String.fromCharCode(parseInt(h,16))).join('');
+  const c=[...t.matchAll(/a=candidate:\S+ 1 udp \d+ (\S+) (\d+) typ host/g)].slice(0,3).map(m=>m[1]+' '+m[2]);
+  return [g(/a=ice-ufrag:(\S+)/),g(/a=ice-pwd:(\S+)/),btoa(fp),c.join(',')].join('|')}
+function unpack(t,ans){const[u,p,f,c]=t.trim().split('|');
+  const fp=[...atob(f)].map(ch=>ch.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase()).join(':');
+  return{type:ans?'answer':'offer',sdp:['v=0','o=- 1 2 IN IP4 127.0.0.1','s=-','t=0 0','a=group:BUNDLE 0','m=application 9 UDP/DTLS/SCTP webrtc-datachannel','c=IN IP4 0.0.0.0','a=ice-ufrag:'+u,'a=ice-pwd:'+p,'a=fingerprint:sha-256 '+fp,'a=setup:'+(ans?'active':'actpass'),'a=mid:0','a=sctp-port:5000',...c.split(',').map((x,i)=>{const[ip,pt]=x.split(' ');return`a=candidate:${i+1} 1 udp ${2113937151-i} ${ip} ${pt} typ host`})].join('\r\n')+'\r\n'}}
+function modal(title,hint,code,btn,cb,o){o=o||{};
+  $('#md').innerHTML=`<div class=ov><div class="card pair">${o.s?`<div class=pstep>${o.s}</div>`:''}<b>${title}</b><div class=mut style="margin:6px 0">${hint}</div>${code?qr(code)+`<details><summary>Δεν σαρώνεται;</summary><ul><li>Κράτα τις συσκευές 15–25 εκ. μακριά και αύξησε τη φωτεινότητα της οθόνης.</li><li>Έλεγξε ότι είναι και οι δύο στο ίδιο Wi-Fi ή hotspot.</li><li>Εναλλακτικά αντίγραψε τον κωδικό παρακάτω και επικόλλησέ τον στην άλλη συσκευή.</li></ul><textarea readonly rows=2>${esc(code)}</textarea></details>`:''}
+  ${btn?`<video id=vd playsinline muted hidden style="width:100%;border-radius:10px"></video><div class=bar><button class=p id=sb>${btn}</button></div><details><summary>Επικόλληση κωδικού</summary><textarea id=pt rows=2 placeholder="Επικόλλησε τον κωδικό εδώ"></textarea><div class=bar><button id=ok>OK</button></div></details>`:''}
+  <div class=bar><button onclick=closeM()>Κλείσιμο</button></div></div></div>`;
+  if(btn){$('#sb').onclick=()=>scan(cb);$('#ok').onclick=()=>{const v=$('#pt').value.trim();if(v)cb(v)}}}
+function stopScan(){clearInterval(scanT);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null}
+function closeM(){stopScan();$('#md').innerHTML=''}
+async function scan(cb){
+  const B=native()&&P('BarcodeScanner');
+  if(B){try{await B.requestPermissions();
+    const av=await B.isGoogleBarcodeScannerModuleAvailable();
+    if(!av.available){await B.installGoogleBarcodeScannerModule();return alert('Γίνεται εγκατάσταση του σαρωτή QR από τις Υπηρεσίες Google Play. Δοκίμασε ξανά σε λίγα δευτερόλεπτα (απαιτεί internet μία φορά).')}
+    const r=await B.scan({formats:['QR_CODE']});if(r.barcodes&&r.barcodes[0])cb(r.barcodes[0].rawValue)}
+  catch(e){if(!/cancel/i.test((e&&e.message)||''))alert('Η σάρωση απέτυχε. Επικόλλησε τον κωδικό στο πεδίο.')}return}
+  if(!('BarcodeDetector' in window))return alert('Αυτός ο browser δεν σαρώνει QR. Χρησιμοποίησε Chrome σε Android ή επικόλλησε τον κωδικό.');
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});const v=$('#vd');v.srcObject=stream;v.hidden=false;await v.play();
+    const bd=new BarcodeDetector({formats:['qr_code']});
+    scanT=setInterval(async()=>{try{const r=await bd.detect(v);if(r.length){const t=r[0].rawValue;stopScan();cb(t)}}catch(e){}},300)
+  }catch(e){alert('Δεν επιτράπηκε η κάμερα')}}
+async function addPhone(){
+  $('#md').innerHTML='<div class=ov><div class="card sm"><b>Προετοιμασία κωδικού…</b><div class=spin></div></div></div>';
+  try{const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('a');await pc.setLocalDescription(await pc.createOffer());await gather(pc);
+    modal('Σύνδεση κινητού','<ol><li>Στο κινητό πάτα <b>«🔗 Σύνδεση»</b> και σάρωσε αυτό το QR.</li><li>Το κινητό θα δείξει δικό του QR. Πάτα το κουμπί παρακάτω και σάρωσέ το.</li></ol>',pack(pc.localDescription),'📷 Σάρωση QR του κινητού',async t=>{
+      try{wire(dc);await pc.setRemoteDescription(unpack(t,true));$('#md').innerHTML='<div class=ov><div class="card sm pair"><b>Σύνδεση…</b><div class=spin></div></div></div>';
+        setTimeout(()=>{if($('#md .pair'))$('#md').innerHTML='<div class=ov><div class="card sm"><b>⚠ Δεν ολοκληρώθηκε η σύνδεση</b><p class=mut>Βεβαιώσου ότι και οι δύο συσκευές είναι στο ίδιο Wi-Fi ή hotspot και δοκίμασε ξανά.</p><div class=bar><button onclick=closeM()>Κλείσιμο</button><button class=p onclick=addPhone()>Ξανά</button></div></div></div>'},12000)}
+      catch(e){alert('Μη έγκυρος κωδικός')}},{s:'Βήματα 1–2'})}
+  catch(e){closeM();alert('Η σύνδεση κινητών δεν είναι διαθέσιμη σε αυτόν τον browser.')}}
+function phoneConn(){
+  modal('Σύνδεση με ταμπλέτα','<ol><li>Στην ταμπλέτα πάτα <b>«➕ Κινητό (QR)»</b>.</li><li>Σάρωσε εδώ το QR που εμφανίζεται στην ταμπλέτα.</li></ol>',null,'📷 Σάρωση QR ταμπλέτας',async t=>{
+    try{const pc=new RTCPeerConnection({iceServers:[]});pc.ondatachannel=e=>wire(e.channel);
+      await pc.setRemoteDescription(unpack(t,false));await pc.setLocalDescription(await pc.createAnswer());await gather(pc);
+      modal('Δείξε αυτό το QR στην ταμπλέτα','<ol><li>Στην ταμπλέτα πάτα <b>«📷 Σάρωση QR του κινητού»</b>.</li><li>Σάρωσε αυτό το QR. Το παράθυρο κλείνει μόνο του όταν συνδεθεί.</li></ol>',pack(pc.localDescription),null,null,{s:'Βήμα 2'})
+    }catch(e){alert('Μη έγκυρος κωδικός')}},{s:'Βήμα 1'})}
+
+/* ---------- Γεννήτρια QR (byte, ECC L) ---------- */
+function qr(txt){
+  const B=[...new TextEncoder().encode(txt)],ECC=[7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28],NB=[1,1,1,1,1,2,2,2,2,4,4,4,4,4,6,6,6,6,7,8];
+  const raw=v=>{let r=(16*v+128)*v+64;if(v>=2){const a=Math.floor(v/7)+2;r-=(25*a-10)*a-55;if(v>=7)r-=36}return r};
+  let ver=1;const cp=v=>Math.floor(raw(v)/8)-ECC[v-1]*NB[v-1];
+  for(;ver<=20;ver++)if(4+(ver<10?8:16)+B.length*8<=cp(ver)*8)break;
+  if(ver>20)return'<p>Πολύ μεγάλος κωδικός</p>';
+  const cap=cp(ver),ne=ECC[ver-1],nb=NB[ver-1],bits=[],put=(v,n)=>{for(let i=n-1;i>=0;i--)bits.push((v>>>i)&1)};
+  put(4,4);put(B.length,ver<10?8:16);B.forEach(b=>put(b,8));put(0,Math.min(4,cap*8-bits.length));while(bits.length%8)bits.push(0);
+  for(let p=0xEC;bits.length<cap*8;p^=0xFD)put(p,8);
+  const data=[];for(let i=0;i<bits.length;i+=8)data.push(parseInt(bits.slice(i,i+8).join(''),2));
+  const mul=(x,y)=>{let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x}return z};
+  const div=new Array(ne).fill(0);div[ne-1]=1;let r=1;
+  for(let i=0;i<ne;i++){for(let j=0;j<ne;j++){div[j]=mul(div[j],r);if(j+1<ne)div[j]^=div[j+1]}r=mul(r,2)}
+  const rs=d=>{const res=new Array(ne).fill(0);for(const b of d){const f=b^res.shift();res.push(0);div.forEach((c,i)=>res[i]^=mul(c,f))}return res};
+  const rc=Math.floor(raw(ver)/8),ns=nb-rc%nb,sl=Math.floor(rc/nb),blocks=[];let k=0;
+  for(let i=0;i<nb;i++){const d=data.slice(k,k+sl-ne+(i<ns?0:1));k+=d.length;const e=rs(d);if(i<ns)d.push(0);blocks.push(d.concat(e))}
+  const cw=[];for(let i=0;i<blocks[0].length;i++)blocks.forEach((b,j)=>{if(i!=sl-ne||j>=ns)cw.push(b[i])});
+  const N=ver*4+17,M=[],F=[];for(let i=0;i<N;i++){M.push(new Array(N).fill(0));F.push(new Array(N).fill(false))}
+  const set=(x,y,d)=>{M[y][x]=d?1:0;F[y][x]=true},bit=(v,i)=>(v>>>i)&1;
+  for(let i=0;i<N;i++){set(6,i,i%2==0);set(i,6,i%2==0)}
+  [[3,3],[N-4,3],[3,N-4]].forEach(([cx,cy])=>{for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.max(Math.abs(dx),Math.abs(dy)),x=cx+dx,y=cy+dy;if(x>=0&&x<N&&y>=0&&y<N)set(x,y,d!=2&&d!=4)}});
+  const na=ver>1?Math.floor(ver/7)+2:0,ap=[];
+  if(na){const st=ver==32?26:Math.ceil((ver*4+4)/(na*2-2))*2;ap.push(6);for(let p=N-7;ap.length<na;p-=st)ap.splice(1,0,p)}
+  for(let i=0;i<na;i++)for(let j=0;j<na;j++)if(!((i==0&&j==0)||(i==0&&j==na-1)||(i==na-1&&j==0)))for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)set(ap[i]+dx,ap[j]+dy,Math.max(Math.abs(dx),Math.abs(dy))!=1);
+  let fr=8;for(let i=0;i<10;i++)fr=(fr<<1)^((fr>>>9)*0x537);const fb=((8<<10)|fr)^0x5412;
+  for(let i=0;i<=5;i++)set(8,i,bit(fb,i));set(8,7,bit(fb,6));set(8,8,bit(fb,7));set(7,8,bit(fb,8));for(let i=9;i<15;i++)set(14-i,8,bit(fb,i));
+  for(let i=0;i<8;i++)set(N-1-i,8,bit(fb,i));for(let i=8;i<15;i++)set(8,N-15+i,bit(fb,i));set(8,N-8,1);
+  if(ver>=7){let v=ver;for(let i=0;i<12;i++)v=(v<<1)^((v>>>11)*0x1F25);const vb=(ver<<12)|v;for(let i=0;i<18;i++){const c=bit(vb,i),a=N-11+i%3,b=Math.floor(i/3);set(a,b,c);set(b,a,c)}}
+  k=0;for(let right=N-1;right>=1;right-=2){if(right==6)right=5;for(let v=0;v<N;v++)for(let j=0;j<2;j++){const x=right-j,y=((right+1)&2)==0?N-1-v:v;if(!F[y][x]&&k<cw.length*8){M[y][x]=bit(cw[k>>>3],7-(k&7));k++}}}
+  let path='';for(let y=0;y<N;y++)for(let x=0;x<N;x++){let d=M[y][x];if(!F[y][x]&&(x+y)%2==0)d^=1;if(d)path+=`M${x+4} ${y+4}h1v1h-1z`}
+  return`<svg viewBox="0 0 ${N+8} ${N+8}" style="width:100%;max-width:320px;display:block;margin:0 auto" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${path}"/></svg>`}
+
+/* ---------- Αρχεία ---------- */
+async function saveF(){
+  const t=JSON.stringify({v:1,cfg:S.cfg,ath:S.ath,br:S.br||{}}),fn='toxovolia-'+new Date().toISOString().slice(0,10)+'.json';
+  await saveFile(t,fn,'application/json')
+}
+function loadF(inp){
+  const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(d.cfg&&(role==='tablet'||!Object.keys(S.ath).length)){S.cfg=Object.assign(S.cfg,d.cfg)}
+    Object.assign(S.ath,d.ath||{});if(d.br)S.br=Object.assign(S.br||{},d.br);save();
+    if(role==='tablet')bcast({t:'cfg',d:S.cfg});
+    if(role==='phone')sendAll();render()}catch(e){alert('Μη έγκυρο αρχείο')}};
+  r.readAsText(f);inp.value=''
+}
+let wl=null;async function keepOn(){try{if(native()&&P('KeepAwake'))P('KeepAwake').keepAwake().catch(()=>{});if('wakeLock' in navigator&&!wl)wl=await navigator.wakeLock.request('screen');if(wl)wl.addEventListener('release',()=>{wl=null})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&role)keepOn()});
+function setRole(r){role=r;if(r){keepOn();S.lastRole=r}if(r==='tablet'&&!WZ&&!Object.keys(S.ath).length){WZ=1;setTimeout(()=>wizM(1),250)}save();render()}
+
+/* ---------- Ταμπλέτα ---------- */
+function cfgSet(k,v){S.cfg[k]=['name','code','date','place','org'].includes(k)?v:k==='sort'?!!v:Math.max(1,+v||1);save();bcast({t:'cfg',d:S.cfg});renderRank()}
+const ord=v=>v==='X'?11:v==='M'?0:+v;
+const lab=a=>(a.t?a.t+' · ':'')+a.n;
+const GL=g=>g==='M'?'Άνδρας':g==='F'?'Γυναίκα':'';
+const hit=(x,y)=>{const r=Math.hypot(x,y);return r>=1?'M':r<.05?'X':String(10-Math.floor(r*10))};
+function ensureP(a){a.p=a.p||[];while(a.p.length<a.s.length)a.p.push(null)}
+function sortEnd(a){if(S.cfg.sort===false)return;ensureP(a);const A=S.cfg.arrows;
+  for(let lo=0;lo+A<=a.s.length;lo+=A){const g=a.s.slice(lo,lo+A).map((v,i)=>({v,p:a.p[lo+i]})).sort((x,y)=>ord(y.v)-ord(x.v));g.forEach((o,i)=>{a.s[lo+i]=o.v;a.p[lo+i]=o.p})}}
+const rkey=a=>[tot(a),cnt(a,'X'),cnt(a,'10')+cnt(a,'X'),a.so==null?-1:ord(a.so)];
+function ranked(L=list()){L.sort((a,b)=>{const x=rkey(a),y=rkey(b);for(let i=0;i<4;i++)if(y[i]!==x[i])return y[i]-x[i];return 0});
+  let r=0;L.forEach((a,i)=>{if(i===0||rkey(a).join()!==rkey(L[i-1]).join())r=i+1;a.r=r});return L}
+function mkTeams(m,pick){return Object.keys(m).map(n=>{const u=pick(m[n]);return{n,sum:u.reduce((t,x)=>t+tot(x),0),x:u.reduce((t,x)=>t+cnt(x,'X'),0),ar:u.reduce((t,x)=>t+x.s.length,0),m:u.length,names:u.map(x=>x.n).join(', ')}}).filter(t=>t.m>0).sort((a,b)=>b.sum-a.sum||b.x-a.x)}
+const topN=(L,n)=>L.slice().sort((x,y)=>tot(y)-tot(x)).slice(0,n);
+function teams(g){const m={};list().forEach(a=>{if(a.tm&&(a.g||'')===(g||''))(m[a.tm]=m[a.tm]||[]).push(a)});return mkTeams(m,l=>topN(l,3))}
+function mixTeams(){const m={};list().forEach(a=>{if(a.tm)(m[a.tm]=m[a.tm]||[]).push(a)});
+  return mkTeams(m,l=>[...topN(l.filter(a=>a.g==="M"),1),...topN(l.filter(a=>a.g==="F"),1)]).filter(t=>t.m===2)}
+function rankT(T){let r=0;T.forEach((x,i)=>{if(i===0||x.sum!==T[i-1].sum||x.x!==T[i-1].x)r=i+1;x.r=r});return T}
+const ttab=T=>'<table class=pt><tr><th>#</th><th>Ομάδα</th><th>Αθλητές</th><th>Σύνολο</th></tr>'+T.map(x=>`<tr><td>${x.r}</td><td>${esc(x.n)}</td><td>${esc(x.names)}</td><td><b>${x.sum}</b></td></tr>`).join('')+'</table>';
+let rv='ind',tv='score',inp='key',fsK=['ind'],fsAuto=true,fsT=null,fsS={};
+const KT={ind:'Ατομικά',team:'Ομαδικά',mix:'Μεικτό ομαδικό',ko:'Ολυμπιακοί γύροι'},GN={M:'♂ Άνδρες',F:'♀ Γυναίκες','':'Λοιποί'},GT={M:'♂ Ομάδες Ανδρών',F:'♀ Ομάδες Γυναικών','':'Ομάδες'},GC={M:'m',F:'f','':'x'};
+function panel(kind){
+  const max=S.cfg.ends*S.cfg.arrows,C=['#e0a800','#9aa4ad','#b8702f'],ch=['#17694a','#2f7fd6','#8a4fc7','#c2410c','#0f7f8f','#a3366b'];
+  const tile=(r,i,t,sc,sub)=>`<div class=tile data-k="${esc(kind+'|'+t)}" style="background:${r<=3?C[r-1]:ch[i%ch.length]};color:${r===1||r===2?'#1a1a1a':'#fff'}"><div class=tr>${r}</div><div class=tn>${esc(t)}</div><div class=ts>${sc}</div><div class=tm>${sub}</div></div>`;
+  const secs=[],tt=(r,i,t,sc,sub)=>tile(r,i,t,sc,sub).replace('class=tile','class="tile team"').replace('<div class=tn>','<div class=bd>ΟΜΑΔΑ</div><div class=tn>');
+  if(kind==='ind')['M','F',''].forEach(g=>{const L=ranked(list().filter(a=>(a.g||'')===g));if(L.length)secs.push([GN[g],GC[g],L.map((a,i)=>tile(a.r,i,a.n,tot(a),`${a.t?esc(a.t)+' · ':''}${a.tm?esc(a.tm)+' · ':''}${a.s.length} από ${max} βέλη`)).join('')])});
+  else if(kind==='team')['M','F',''].forEach(g=>{const T=rankT(teams(g));if(T.length)secs.push([GT[g],GC[g],T.map((x,i)=>tt(x.r,i,x.n,x.sum,`${x.ar} από ${x.m*max} βέλη`)).join('')])});
+  else if(kind==='ko'){['M','F','TM','TF','MX'].forEach(k=>{const st=standings(k);if(st.length)secs.push([KL[k],KC[k],stTiles(k,st)])})}
+  else{const T=rankT(mixTeams());if(T.length)secs.push(['⚤ Μεικτό ομαδικό · 1 άνδρας + 1 γυναίκα','x',T.map((x,i)=>tt(x.r,i,x.n,x.sum,`${x.ar} από ${x.m*max} βέλη`)).join('')])}
+  if(!secs.length)return '<p class=mut>'+(kind==='ind'?'Δεν υπάρχουν αθλητές ακόμα.':kind==='ko'?'Δεν υπάρχουν διασταυρώσεις Ολυμπιακών γύρων ακόμα.':kind==='mix'?'Δεν υπάρχουν πλήρεις μεικτές ομάδες (χρειάζεται άνδρας και γυναίκα της ίδιας ομάδας).':'Δεν υπάρχουν ομάδες. Γράψε ομάδα και φύλο στους αθλητές (το μεικτό χρειάζεται άνδρα και γυναίκα της ίδιας ομάδας).')+'</p>';
+  const one=secs.length===1&&secs[0][0]==='Λοιποί';
+  return secs.map(([t,c,h])=>(one?'':`<h3 class="gh ${c}">${t}</h3>`)+'<div class=tiles>'+h+'</div>').join('')}
+function renderRank(){const el=$('#rank');if(el)flipSet(el,panel(rv));fsrDraw()}
+/* Κατάταξη σε πλήρη οθόνη */
+function fsrOpen(){const el=$('#fsr');if(native()&&P('StatusBar'))try{P('StatusBar').hide()}catch(x){}el.className='on';fsrDraw();const f=el.requestFullscreen||el.webkitRequestFullscreen;if(f)try{f.call(el)}catch(e){}
+  clearInterval(fsT);fsT=setInterval(()=>{if(!fsAuto)return;document.querySelectorAll('#fsr .fc').forEach(c=>{if(c.scrollHeight<=c.clientHeight+2)return;const q=fsS[c.id]=fsS[c.id]||{d:1,h:60};
+    if(q.h>0){q.h--;return}c.scrollTop+=q.d;if(q.d>0&&c.scrollTop+c.clientHeight>=c.scrollHeight-1){q.d=-1;q.h=60}else if(q.d<0&&c.scrollTop<=0){q.d=1;q.h=60}})},50)}
+function fsrClose(){clearInterval(fsT);if(native()&&P('StatusBar')&&!fsN)try{P('StatusBar').show()}catch(x){}const el=$('#fsr');el.className='';el.innerHTML='';try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen()}catch(e){}}
+function fsTog(k){const n=fsK.includes(k)?fsK.filter(x=>x!==k):[...fsK,k];if(n.length)fsK=['ind','team','mix','ko'].filter(x=>n.includes(x));fsrDraw()}
+function fsrDraw(){const el=$('#fsr');if(!el||el.className!=='on')return;const st={};el.querySelectorAll('.fc').forEach(c=>st[c.id]=c.scrollTop);
+  el.innerHTML=`<div class=fb><span class=brand2>🎯 ${esc(S.cfg.name)}</span>${['ind','team','mix','ko'].map(k=>`<button class="${fsK.includes(k)?'on':''}" onclick="fsTog('${k}')">${KT[k]}</button>`).join('')}<button onclick="fsAuto=!fsAuto;fsrDraw()">${fsAuto?'⏸ Αυτόματο scroll':'▶ Αυτόματο scroll'}</button><button onclick=fsrClose()>✕ Κλείσιμο</button></div>
+  <div class=fbody style="grid-template-columns:repeat(${fsK.length},minmax(0,1fr))">${fsK.map(k=>`<div class=fc id=fc-${k}><h2>${KT[k]}</h2>${panel(k)}</div>`).join('')}</div>`;
+  el.querySelectorAll('.fc').forEach(c=>{if(st[c.id])c.scrollTop=st[c.id]})}
+function editAth(){const a=list()[cur];if(!a)return;
+  $('#md').innerHTML=`<div class=ov><div class=card><b>✎ Στοιχεία αθλητή</b><label style="margin-top:8px">Όνομα<input id=en value="${esc(a.n)}"></label>
+  <div class=row style="margin-top:8px"><label>Στόχος (π.χ. 5A)<input id=et value="${esc(a.t||'')}"></label><label>Ομάδα<input id=em value="${esc(a.tm||'')}"></label><label>Φύλο<select id=eg><option value="">—</option><option value=M ${a.g==='M'?'selected':''}>Άνδρας</option><option value=F ${a.g==='F'?'selected':''}>Γυναίκα</option></select></label></div>
+  <div class=bar style="margin-top:10px"><button class=p onclick="saveAth('${a.id}')">Αποθήκευση</button><button onclick=closeM()>Άκυρο</button></div></div></div>`}
+function saveAth(id){const a=S.ath[id];a.n=cap($('#en').value.trim())||a.n;a.t=$('#et').value.trim().toUpperCase();a.tm=$('#em').value.trim();a.g=$('#eg').value;if(role==='tablet')a.ed=1;save();
+  bcast({t:'meta',id,m:{n:a.n,t:a.t,tm:a.tm,g:a.g}});send(id);closeM();render();renderRank()}
+function menuM(){const t=role==='tablet',it=t?[['✨ Νέος αγώνας','wizM(1)'],['📊 Ιστορικό',"tv='hist';render()"],['⭐ Παρέα','rosterM()'],['🎯 Κατανομή σε στόχους','autoT()'],['💾 Αποθήκευση','saveF()'],['📂 Φόρτωση',"$('#f').click()"],['📄 Εξαγωγή','expM()'],['⚔ Shoot-off','soM()'],['🏁 Ολοκλήρωση αγώνα','finishEv()'],['♻ Αντίγραφα ασφαλείας','bkM()'],['🗑 Καθαρισμός','reset()'],['⌂ Αρχική','setRole(null)']]:[['💾 Αποθήκευση','saveF()'],['📂 Φόρτωση',"$('#f').click()"],['♻ Αντίγραφα ασφαλείας','bkM()'],['🗑 Νέος αγώνας','reset()'],['⌂ Αρχικό μενού','setRole(null)']];
+  $('#md').innerHTML=`<div class=ov><div class=card><b>Μενού</b><div class=mg>${it.map(([l,f])=>`<button onclick="closeM();${f}">${l}</button>`).join('')}</div><div class=bar><button onclick=closeM()>Κλείσιμο</button></div></div></div>`}
+function tabletView(){const c=S.cfg,L=list(),op=L.length?'':'open';return `
+<div class=top><button class=lk onclick="setRole(null)">‹ Αρχική</button><div id=st class=mut></div></div>
+<div class=bar><button class=p onclick=addPhone()>➕ Κινητό (QR)</button><button onclick=fsrOpen()>⛶ Κατάταξη</button><button onclick="tv='ko';render()">🏹 Ολυμπιακοί</button><button onclick=menuM()>☰ Μενού</button></div>
+<details class=card ${op}><summary>⚙ Ρυθμίσεις αγώνα <span class=mut>${esc(c.name)} · ${c.ends}×${c.arrows}</span></summary>
+<div class=row style="margin-top:10px"><label>Όνομα αγώνα<input value="${esc(c.name)}" onchange="cfgSet('name',this.value)"></label></div>
+<div class=row style="margin-top:8px"><label>Ημερομηνία<input type=date value="${esc(c.date||new Date().toISOString().slice(0,10))}" onchange="cfgSet('date',this.value)"></label><label>Τοποθεσία<input value="${esc(c.place||'')}" onchange="cfgSet('place',this.value)"></label><label>Διοργάνωση<input value="${esc(c.org||'')}" onchange="cfgSet('org',this.value)"></label></div>
+<div class=row style="margin-top:8px"><label>Βολές (γύροι)<input type=number min=1 max=72 value=${c.ends} onchange="cfgSet('ends',this.value)"></label>
+<label>Βέλη ανά βολή<input type=number min=1 max=12 value=${c.arrows} onchange="cfgSet('arrows',this.value)"></label></div>
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px;color:var(--fg)"><input type=checkbox style="width:auto" ${c.sort!==false?'checked':''} onchange="cfgSet('sort',this.checked)">Ταξινόμηση βελών ανά βολή (φθίνουσα)</label></details>
+<div class="seg tt"><button class="${tv==='score'?'on':''}" onclick="tv='score';render()">✍ Βαθμολόγηση</button><button class="${tv==='res'?'on':''}" onclick="tv='res';render()">🏆 Αποτελέσματα</button></div>
+<div class="tg v-${tv}"><div id=pscore><details class=card ${op}><summary>➕ Προσθήκη αθλητών</summary><label style="margin-top:10px">Αθλητές – ένας ανά γραμμή (Όνομα, Ομάδα, Α/Γ)<textarea id=na rows=3 style="width:100%" placeholder="Νίκος&#10;Μαρία, Αετοί, Γ"></textarea></label>
+<div class=row style="margin-top:8px;align-items:flex-end"><label>Στόχος (αριθμός)<input id=nt inputmode=numeric placeholder="π.χ. 5"></label><label>Ομάδα<input id=nm2 placeholder="προαιρετικό"></label><label>Φύλο<select id=ng><option value="">—</option><option value=M>Άνδρας</option><option value=F>Γυναίκα</option></select></label><button class=p style="flex:0 0 auto" onclick=addA()>➕ Προσθήκη</button></div><div class=bar style="margin-top:10px"><button onclick=rosterM()>⭐ Παρέα</button><button onclick=autoT()>🎯 Στόχοι ανά 4</button></div></details>
+${L.length?scoreUI(L)+'<div class=bar><button class=d onclick=delA()>✕ Διαγραφή αθλητή</button></div>':'<div class="card empty"><div class=big2e>🏹</div><b>Ξεκίνα μια νέα συνάντηση</b><p class=mut>Ο οδηγός σε βοηθά σε 3 απλά βήματα.</p><button class=p onclick="wizM(1)">✨ Νέος αγώνας</button></div>'}</div>
+<div id=prank><div class=seg>${['ind','team','mix'].map(k=>`<button class="${rv===k?'on':''}" onclick="rv='${k}';render()">${KT[k]}</button>`).join('')}</div><div id=rank></div></div></div>`}
+
+/* ---------- Κινητό ---------- */
+function startAth(){
+  const tg=($('#tg').value||'').trim(),tms=[...document.querySelectorAll('.tmx')],gs=[...document.querySelectorAll('.gx')];
+  const nm=[...document.querySelectorAll('.nm')].map((x,k)=>[x.value.trim(),k]).filter(x=>x[0]);
+  if(!nm.length)return alert('Γράψε τουλάχιστον ένα όνομα');
+  nm.forEach(([n,k])=>S.ath[dev+k]={n:cap(n),s:[],p:[],t:tg?(tg+'ABCD'[k]).toUpperCase():'',tm:tms[k].value.trim(),g:gs[k].value});cur=0;save();sendAll();render()}
+function add(v,pos){const x=list()[cur],a=x&&S.ath[x.id];if(!a||a.s.length>=S.cfg.ends*S.cfg.arrows)return;
+  ensureP(a);a.s.push(v);a.p.push(pos||null);sortEnd(a);try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}save();send(x.id);render()}
+function undo(){const x=list()[cur],a=x&&S.ath[x.id];if(a&&a.s.length){a.s.pop();ensureP(a);a.p.length=a.s.length;save();send(x.id);render()}}
+function tapT(e){const r=e.currentTarget.getBoundingClientRect(),x=((e.clientX-r.left)/r.width*210-105)/100,y=((e.clientY-r.top)/r.height*210-105)/100;
+  if(Math.hypot(x,y)>1.05)return;add(hit(x,y),[+x.toFixed(3),+y.toFixed(3)])}
+function editA(i){const a=list()[cur];if(!a)return;
+  $('#md').innerHTML=`<div class=ov><div class=card><b>Διόρθωση βέλους ${i+1} (βολή ${Math.floor(i/S.cfg.arrows)+1}) – ${esc(a.n)}</b><p class=mut>Τρέχουσα τιμή: ${a.s[i]}</p><div class=pad>${KEYS.map(k=>`<button class="${cls(k)}" onclick="setA(${i},'${k}')">${k}</button>`).join('')}</div><div class=bar><button onclick=closeM()>Άκυρο</button></div></div></div>`}
+function setA(i,v){const x=list()[cur],a=S.ath[x.id];a.s[i]=v;ensureP(a);a.p[i]=null;sortEnd(a);save();send(x.id);closeM();render()}
+function tgtSVG(a){const A=S.cfg.arrows,ce=Math.floor(a.s.length/A)*A,col=['#f4f4f4','#f4f4f4','#222','#222','#2f7fd6','#2f7fd6','#d9342b','#d9342b','#f5c518','#f5c518'];
+  let h='<svg viewBox="-105 -105 210 210" onclick="tapT(event)" style="width:100%;max-width:440px;display:block;margin:0 auto">';
+  col.forEach((c,i)=>h+=`<circle r="${100-i*10}" fill="${c}" stroke="#8a8a8a" stroke-width=".6"/>`);
+  h+='<circle r="5" fill="none" stroke="#7a6000" stroke-width=".6"/>';
+  (a.p||[]).forEach((q,i)=>{if(q)h+=`<circle cx="${q[0]*100}" cy="${q[1]*100}" r="${i>=ce?3.2:2.2}" fill="${i>=ce?'#fff':'#ffffffaa'}" stroke="#000" stroke-width=".8"/>`});
+  return h+'</svg>'}
+function scoreUI(L){
+  if(cur>=L.length)cur=0;
+  const a=L[cur],A=S.cfg.arrows,E=S.cfg.ends,done=a.s.length>=E*A,ce=Math.floor(a.s.length/A);
+  let run=0,rows='';
+  for(let e=0;e<E;e++){
+    const seg=a.s.slice(e*A,e*A+A),sum=seg.reduce((t,v)=>t+val(v),0);if(seg.length)run+=sum;
+    rows+=`<tr class="${e===ce&&!done?'cu':''}"><td class=mut>${e+1}</td>`+Array.from({length:A},(_,j)=>{const v=seg[j];return `<td${v?` onclick="editA(${e*A+j})" style="cursor:pointer"`:''}>${v?`<span class="cell ${cls(v)}">${v}</span>`:'·'}</td>`}).join('')+`<td><b>${seg.length?sum:''}</b></td><td>${seg.length?run:''}</td></tr>`}
+  const keys=`<div class=padw><div class=pad>${KEYS.map(k=>`<button class="${cls(k)}" ${done?'disabled':''} onclick="add('${k}')">${k}</button>`).join('')}</div></div>`;
+  return `<div class=tabs>${L.map((x,i)=>`<button class="${i===cur?'on':''}" onclick="cur=${i};render()">${esc(lab(x))} <b>${tot(x)}</b></button>`).join('')}</div>
+  <div class=card><div class=row style="align-items:center"><div><div class=mut>${esc(lab(a))} · βολή ${Math.min(ce+1,E)}/${E}</div><div class=big>${tot(a)} <span class=mut>(X:${cnt(a,'X')} · 10:${cnt(a,'10')})</span></div></div>
+  <div class=ib><button onclick=editAth() title="Στοιχεία αθλητή">✎<span class=lb> Στοιχεία</span></button><button onclick="inp=inp==='key'?'tgt':'key';render()" title="Τρόπος εισαγωγής">${inp==='key'?'🎯':'⌨'}<span class=lb> ${inp==='key'?'Στόχος':'Πλήκτρα'}</span></button><button onclick=undo() title="Αναίρεση">↶<span class=lb> Αναίρεση</span></button></div></div>
+  ${done?'<p class=mut>✅ Ο αθλητής ολοκλήρωσε όλες τις βολές.</p>':''}</div>
+  ${inp==='tgt'?`<div class=card>${tgtSVG(a)}<p class=mut style="text-align:center;margin:6px 0">Άγγιξε τη θέση του βέλους στον στόχο. <button ${done?'disabled':''} onclick="add('M')">M αστοχία</button></p></div>`:''}
+  <div class="card sc"><table><tr><th>#</th>${Array.from({length:A},(_,j)=>`<th>${j+1}</th>`).join('')}<th>Βολή</th><th>Σύν.</th></tr>${rows}</table><p class=mut style="margin:6px 0 0">Άγγιξε ένα βέλος για διόρθωση.</p></div>
+  ${inp==='key'?keys:''}`}
+function phoneView(){
+  const L=list();
+  if(!L.length)return `<div class=card><p>Ονόματα αθλητών (έως 4 – άφησε κενά όσα δεν παίζουν):</p>
+  ${[1,2,3,4].map(i=>`<div class=row style="margin-bottom:8px"><label>Αθλητής ${i}<input class=nm placeholder="Όνομα"></label><label>Ομάδα<input class=tmx placeholder="προαιρετικό"></label><label>Φύλο<select class=gx><option value="">—</option><option value=M>Άνδρας</option><option value=F>Γυναίκα</option></select></label></div>`).join('')}
+  <label>Στόχος (αριθμός)<input id=tg inputmode=numeric placeholder="π.χ. 5 → 5A, 5B, 5C, 5D"></label>
+  <p><button class=p style="width:100%" onclick=startAth()>Έναρξη</button></p>
+  <p class=mut>Αν έχεις αποθηκευμένο αρχείο, φόρτωσέ το:</p><button onclick="$('#f').click()">📂 Φόρτωση αρχείου</button> <button onclick="setRole(null)">⌂ Πίσω</button></div>`;
+  return `<div class=top><button class=lk onclick="setRole(null)">‹ Αρχικό μενού</button><div id=st class=mut></div></div>`+scoreUI(L)+`
+  <div class=bar><button class=p onclick=phoneConn()>🔗 Σύνδεση</button><button onclick=menuM()>☰ Μενού</button></div>`
+}
+
+/* ---------- Ολυμπιακοί γύροι (Recurve, κανονισμοί World Archery) ---------- */
+const BT={i:{n:3,sets:5,win:6,so:1,h:'5 σετ × 3 βέλη · νίκη στους 6 βαθμούς (2 νίκη σετ, 1 ισοπαλία) · ισοπαλία 5-5: shoot-off 1 βέλος'},
+ t:{n:6,sets:4,win:5,so:3,h:'Ομάδα 3 αθλητών: 4 σετ × 6 βέλη (2 ανά αθλητή) · νίκη στους 5 βαθμούς · ισοπαλία 4-4: shoot-off 3 βέλη (1 ανά αθλητή)'},
+ x:{n:4,sets:4,win:5,so:2,h:'Μεικτή ομάδα 1+1: 4 σετ × 4 βέλη (2 ανά αθλητή) · νίκη στους 5 βαθμούς · ισοπαλία 4-4: shoot-off 2 βέλη (1 ανά αθλητή)'}};
+const BTYPE=k=>k==='M'||k==='F'?'i':k==='MX'?'x':'t',KN={M:16,F:16,TM:8,TF:8,MX:8},
+ KL={M:'Ατομικό Ανδρών',F:'Ατομικό Γυναικών',TM:'Ομάδες Ανδρών',TF:'Ομάδες Γυναικών',MX:'Μεικτό ομαδικό'};
+let kc='M',mo=null;
+const ksum=a=>a.reduce((t,v)=>t+val(v),0);
+function seedOrder(n){let o=[1,2];while(o.length<n){const m=o.length*2;o=o.flatMap(s=>[s,m+1-s])}return o}
+function calc(t,r){const C=BT[t];let pa=0,pb=0,done=0;
+  (r.sets||[]).forEach(s=>{if(s.a.length===C.n&&s.b.length===C.n){const x=ksum(s.a),y=ksum(s.b);if(x>y)pa+=2;else if(x<y)pb+=2;else{pa++;pb++}done++}});
+  let w=null;if(pa>=C.win)w=0;else if(pb>=C.win)w=1;
+  const needSO=w===null&&done>=C.sets;
+  if(needSO&&r.so&&r.so.a.length===C.so&&r.so.b.length===C.so){const x=ksum(r.so.a),y=ksum(r.so.b);if(x>y)w=0;else if(y>x)w=1;else if(r.so.c!=null)w=r.so.c}
+  return{pa,pb,done,w,needSO}}
+function qual(key){const n=KN[key];
+  if(key==='M'||key==='F')return ranked(list().filter(a=>a.g===key)).slice(0,n).map(a=>({k:a.id,n:a.n,sub:a.tm||'',sc:tot(a)}));
+  return rankT(key==='MX'?mixTeams():teams(key[1])).slice(0,n).map(x=>({k:x.n,n:x.n,sub:x.names,sc:x.sum}))}
+function bracket(key){const b=S.br&&S.br[key];if(!b)return null;const N=b.P.length,t=BTYPE(key);let B=2;while(B<N)B*=2;const o=seedOrder(B);b.res=b.res||{};
+  const mk=(id,a,c,r0)=>{let r=b.res[id];if(r&&(r.pa!==(a&&a.k)||r.pb!==(c&&c.k))){delete b.res[id];r=null}
+    const m={id,a,b:c,res:r||null,bye:!!r0&&!(a&&c),cl:{pa:0,pb:0,done:0,w:null},w:null,l:null};
+    if(m.bye)m.w=a||c;else if(a&&c){if(r)m.cl=calc(t,r);if(m.cl.w!==null){m.w=m.cl.w===0?a:c;m.l=m.cl.w===0?c:a}}return m};
+  const ttl=c=>({8:'1/8 τελικού',4:'Προημιτελικοί',2:'Ημιτελικοί',1:'Τελικός'}[c]);
+  let cur=[];for(let i=0;i<B/2;i++)cur.push(mk('r0-'+i,o[2*i]<=N?b.P[o[2*i]-1]:null,o[2*i+1]<=N?b.P[o[2*i+1]-1]:null,true));
+  const rounds=[{t:ttl(cur.length),ms:cur}];
+  while(cur.length>1){const nx=[];for(let i=0;i<cur.length;i+=2)nx.push(mk('r'+rounds.length+'-'+(i/2),cur[i].w,cur[i+1].w));rounds.push({t:ttl(nx.length),ms:nx});cur=nx}
+  let bronze=null;if(rounds.length>=3){const sf=rounds[rounds.length-2].ms;if(sf[0].l&&sf[1].l)bronze=mk('bz',sf[0].l,sf[1].l)}
+  let third=bronze&&bronze.w?bronze.w:null;
+  if(!bronze&&rounds.length>=2){const sf=rounds[rounds.length-2].ms;if(sf.length===2&&sf.some(m=>m.bye)){const rl=sf.filter(m=>!m.bye);if(rl.length===1&&rl[0].l)third=rl[0].l}}
+  return{P:b.P,rounds,bronze,third}}
+const findM=(B,id)=>id==='bz'?B.bronze:B.rounds.flatMap(r=>r.ms).find(m=>m.id===id);
+function kGen(key){const P=qual(key);if(P.length<2)return;S.br=S.br||{};S.br[key]={P,res:{}};save();render()}
+function kReset(key){askM('Να διαγραφεί η διασταύρωση και τα αποτελέσματά της;','Διαγραφή',()=>{snap();delete S.br[key];save();render();toast('Η διασταύρωση διαγράφηκε','↶ Αναίρεση',undoDo,8000)},true)}
+function koPage(){const key=kc,t=BTYPE(key),B=bracket(key),tabs=[['M','♂ Ατομικό'],['F','♀ Ατομικό'],['TM','♂ Ομάδες'],['TF','♀ Ομάδες'],['MX','⚤ Μεικτό']];
+  let h=`<div class=top><button class=lk onclick="tv='res';render()">‹ Κατάταξη</button><div class=mut>Ολυμπιακοί γύροι · Recurve</div></div><div class="seg ks">${tabs.map(([k,l])=>`<button class="${kc===k?'on':''}" onclick="kc='${k}';render()">${l}</button>`).join('')}</div>`;
+  if(!B){const q=qual(key);return h+`<div class=card><b>${KL[key]}</b><p class=mut>${BT[t].h}</p>${q.length<2?`<p>Χρειάζονται τουλάχιστον 2 συμμετέχοντες στην κατάταξη (προκρίνονται οι ${KN[key]} πρώτοι).${key==='MX'?' Για το μεικτό χρειάζεται ομάδα με άνδρα και γυναίκα.':''}</p>`:`<p>Προκρίνονται ${q.length} (σειρά κατάταξης):</p><ol class=ql>${q.map(p=>`<li>${esc(p.n)} <span class=mut>${p.sc}</span></li>`).join('')}</ol><button class=p onclick="kGen('${key}')">🏹 Δημιουργία διασταύρωσης</button>`}</div>`}
+  h+=`<div class=seg><button class="${kv==='tree'?'on':''}" onclick="kv='tree';render()">🌳 Διασταύρωση</button><button class="${kv==='res'?'on':''}" onclick="kv='res';render()">🏆 Αποτελέσματα</button></div>`;
+  if(kv==='res'){const st=standings(key);return h+`<h3 class="gh ${KC[key]}">${KL[key]}</h3><div class=tiles>${stTiles(key,st)}</div><div class=bar style="margin-top:12px"><button class=p onclick=exportPDF()>📄 PDF Αποτελέσματα</button></div>`}
+  const sd=p=>B.P.indexOf(p)+1;
+  const pl=(m,p,side)=>{if(!p)return `<div class="pl dim"><span class=sd></span><span class=pn>—</span></div>`;const win=m.w===p,sc=m.bye||!m.a||!m.b?'':(side?m.cl.pb:m.cl.pa);
+    return `<div class="pl ${win?'w':''}"><span class=sd>${sd(p)}</span><span class=pn>${esc(p.n)}</span><span class=pt2>${sc}${win&&m.cl.needSO?'<sup>SO</sup>':''}</span></div>`};
+  const card=m=>{const ok=m.a&&m.b&&!m.bye;return `<div class="mc ${ok?'':'dim'}" ${ok?`onclick="matchM('${key}','${m.id}')"`:''}>${pl(m,m.a,0)}${m.bye?'<div class="pl dim"><span class=sd></span><span class=pn>BYE</span></div>':pl(m,m.b,1)}</div>`};
+  const last=B.rounds[B.rounds.length-1].ms[0];
+  h+=`<div class=br>${B.rounds.map((r,i)=>`<div class=bc><h4>${r.t}</h4>${r.ms.map(card).join('')}${i===B.rounds.length-1&&B.bronze?`<h4 style="margin-top:18px">Αγώνας χάλκινου</h4>${card(B.bronze)}`:''}</div>`).join('')}</div>`;
+  if(last.w)h+=`<div class="card medals">🥇 <b>${esc(last.w.n)}</b>${last.l?` &nbsp; 🥈 <b>${esc(last.l.n)}</b>`:''}${B.third?` &nbsp; 🥉 <b>${esc(B.third.n)}</b>`:''}</div>`;
+  return h+`<div class=bar><button class=p onclick=exportPDF()>📄 PDF Αποτελέσματα</button><button class=d onclick="kReset('${key}')">↻ Νέα διασταύρωση</button></div><p class=mut>Άγγιξε έναν αγώνα για να βάλεις σκορ. Οι νικητές περνούν αυτόματα στον επόμενο γύρο.</p>`}
+function matchM(key,id){mo={key,id,edit:null};mo.wasW=!!(curM()&&curM().w);drawMatch()}
+function nextSlot(C,r,cl){if(cl.w!==null)return null;const sets=r.sets||[];
+  for(let i=0;i<sets.length;i++){const s=sets[i];if(s.a.length<C.n)return{s:i,side:'a'};if(s.b.length<C.n)return{s:i,side:'b'}}
+  if(sets.length<C.sets)return{s:sets.length,side:'a',newSet:true};
+  if(cl.needSO){const so=r.so||{a:[],b:[]};if(so.a.length<C.so)return{so:1,side:'a'};if(so.b.length<C.so)return{so:1,side:'b'}}return null}
+function drawMatch(){const{key,id}=mo,B=bracket(key),m=B&&findM(B,id);if(!m){closeM();return}
+  const C=BT[BTYPE(key)],r=m.res||{sets:[],so:null},cl=m.cl,sl=nextSlot(C,r,cl),ed=mo.edit,sd=p=>B.P.indexOf(p)+1;
+  const cells=(arr,si,side,act)=>Array.from({length:si==='so'?C.so:C.n},(_,i)=>{const v=arr&&arr[i],on=(ed&&String(ed.si)===String(si)&&ed.side===side&&ed.ix===i)||(act&&!ed&&i===(arr?arr.length:0));
+    return `<td class="${on?'cu':''}" onclick="kEdit('${si}','${side}',${i})">${v?`<span class="cell ${cls(v)}">${v}</span>`:'·'}</td>`}).join('');
+  const dA='<td><span class=dotA>A</span></td>',dB='<td><span class=dotB>B</span></td>';
+  const sets=[...(r.sets||[])];if(sl&&sl.newSet)sets.push({a:[],b:[]});
+  let rows=sets.map((s,i)=>{const act=sl&&!sl.so&&sl.s===i,full=s.a.length===C.n&&s.b.length===C.n,x=ksum(s.a),y=ksum(s.b);
+    return `<tr><td rowspan=2 class=mut>Σετ ${i+1}</td>${dA}${cells(s.a,i,'a',act&&sl.side==='a')}<td><b>${s.a.length?x:''}</b></td><td rowspan=2><b>${full?(x>y?'2 – 0':x<y?'0 – 2':'1 – 1'):''}</b></td></tr><tr>${dB}${cells(s.b,i,'b',act&&sl.side==='b')}<td><b>${s.b.length?y:''}</b></td></tr>`}).join('');
+  const so=r.so||{a:[],b:[],c:null};
+  if(cl.needSO)rows+=`<tr><td rowspan=2 class=mut>Shoot-off</td>${dA}${cells(so.a,'so','a',sl&&sl.so&&sl.side==='a')}<td><b>${so.a.length?ksum(so.a):''}</b></td><td rowspan=2></td></tr><tr>${dB}${cells(so.b,'so','b',sl&&sl.so&&sl.side==='b')}<td><b>${so.b.length?ksum(so.b):''}</b></td></tr>`;
+  const tie=cl.needSO&&so.a.length===C.so&&so.b.length===C.so&&ksum(so.a)===ksum(so.b);
+  const title=id==='bz'?'Αγώνας για το χάλκινο':B.rounds[+id.slice(1).split('-')[0]].t;
+  $('#md').innerHTML=`<div class=ov><div class="card wide"><b>${title} · ${KL[key]}</b>
+  <div class=vs><span class=dotA>A</span>${esc(m.a.n)} <small>#${sd(m.a)}</small><b class=big2>${cl.pa} – ${cl.pb}</b>${esc(m.b.n)} <small>#${sd(m.b)}</small><span class=dotB>B</span></div>
+  <p class=mut>${C.h}</p>${ed?`<p class=win>✎ Διόρθωση βέλους: διάλεξε τη νέα τιμή <button onclick="mo.edit=null;drawMatch()">Άκυρο</button></p>`:'<p class=mut>✎ Άγγιξε ένα βέλος του πίνακα για να το διορθώσεις.</p>'}<div class=sc><table class=mt>${rows}</table></div>
+  ${tie?`<p>Ισοπαλία και στο shoot-off. Ποιος είναι πλησιέστερα στο κέντρο;</p><div class=bar><button class="${so.c===0?'p':''}" onclick="kClosest(0)">A: ${esc(m.a.n)}</button><button class="${so.c===1?'p':''}" onclick="kClosest(1)">B: ${esc(m.b.n)}</button></div>`:''}
+  ${m.w?`<p class=win>🏆 Νικητής: ${esc(m.w.n)}</p>`:sl?`<p class=mut>Επόμενο βέλος: <b>${sl.side==='a'?'A – '+esc(m.a.n):'B – '+esc(m.b.n)}</b></p>`:''}
+  <div class=pad>${KEYS.map(k=>`<button class="${cls(k)}" ${(!sl&&!ed)||(m.w&&!ed)?'disabled':''} onclick="kAdd('${k}')">${k}</button>`).join('')}</div>
+  <div class=bar><button onclick=kUndo()>↶ Αναίρεση</button><button class=p onclick="mo=null;closeM();render()">Κλείσιμο</button></div></div></div>`}
+function ensureRes(m){const b=S.br[mo.key];b.res=b.res||{};return b.res[mo.id]||(b.res[mo.id]={pa:m.a.k,pb:m.b.k,sets:[],so:null})}
+function curM(){const B=bracket(mo.key);return B&&findM(B,mo.id)}
+function kFin(){save();const B=bracket(mo.key),m=B&&findM(B,mo.id),nw=!!(m&&m.w);if(nw&&!mo.wasW&&m.id===B.rounds[B.rounds.length-1].ms[0].id){confetti();toast('🏆 Νικητής: '+esc(m.w.n))}mo.wasW=nw;drawMatch()}
+function kAdd(v){const m=curM();if(!m||!m.a||!m.b||m.bye)return;const C=BT[BTYPE(mo.key)],r=ensureRes(m);
+  if(mo.edit){const e=mo.edit;mo.edit=null;const arr=e.si==='so'?(r.so&&r.so[e.side]):r.sets[e.si]&&r.sets[e.si][e.side];if(arr&&e.ix<arr.length){arr[e.ix]=v;if(r.so)r.so.c=null}return kFin()}
+  const sl=nextSlot(C,r,calc(BTYPE(mo.key),r));if(!sl)return;
+  if(sl.so){r.so=r.so||{a:[],b:[],c:null};r.so[sl.side].push(v);r.so.c=null}else{if(sl.newSet)r.sets.push({a:[],b:[]});r.sets[sl.s][sl.side].push(v)}
+  kFin()}
+function kEdit(si,side,ix){const m=curM(),r=m&&m.res;if(!r)return;const arr=si==='so'?(r.so&&r.so[side]):r.sets[si]&&r.sets[si][side];if(arr&&ix<arr.length){mo.edit={si,side,ix};drawMatch()}}
+function kUndo(){const m=curM(),r=m&&m.res;if(!r)return;mo.edit=null;
+  if(r.so&&(r.so.a.length||r.so.b.length)){r.so.c=null;if(r.so.b.length)r.so.b.pop();else r.so.a.pop()}
+  else{const s=r.sets;while(s.length&&!s[s.length-1].a.length&&!s[s.length-1].b.length)s.pop();if(s.length){const l=s[s.length-1];if(l.b.length)l.b.pop();else l.a.pop()}}
+  kFin()}
+function kClosest(c){const m=curM(),r=m&&m.res;if(r&&r.so){r.so.c=c;kFin()}}
+
+/* ---------- Αποτελέσματα Ολυμπιακών & PDF ---------- */
+let kv='tree';
+const KC={M:'m',F:'f',TM:'m',TF:'f',MX:'x'},fd=d=>{const a=(d||new Date().toISOString().slice(0,10)).split('-');return a[2]+'/'+a[1]+'/'+a[0]};
+const tileH=(r,i,t,sc,sub,team)=>{const C=['#e0a800','#9aa4ad','#b8702f'],ch=['#17694a','#2f7fd6','#8a4fc7','#c2410c','#0f7f8f','#a3366b'];
+  return `<div class="tile${team?' team':''}" style="background:${r<=3?C[r-1]:ch[i%6]};color:${r===1||r===2?'#1a1a1a':'#fff'}"><div class=tr>${r>=99?'–':r}</div>${team?'<div class=bd>ΟΜΑΔΑ</div>':''}<div class=tn>${esc(t)}</div><div class=ts>${sc}</div><div class=tm>${sub}</div></div>`};
+function standings(key){const B=bracket(key);if(!B)return[];const out=[],seen=new Set(),add=(p,r,t)=>{if(p&&!seen.has(p)){seen.add(p);out.push({p,r,t})}};
+  const fin=B.rounds[B.rounds.length-1].ms[0];add(fin.w,1,'Χρυσό μετάλλιο');add(fin.l,2,'Ασημένιο μετάλλιο');
+  if(B.bronze){add(B.bronze.w,3,'Χάλκινο μετάλλιο');add(B.bronze.l,4,'4η θέση')}
+  if(B.third)add(B.third,3,'Χάλκινο μετάλλιο');
+  for(let i=B.rounds.length-2;i>=0;i--){const c=B.rounds[i].ms.length;B.rounds[i].ms.forEach(m=>{if(m.l&&!m.bye)add(m.l,c===2?3:c+1,c===2?'Αγώνας χάλκινου':'Αποκλεισμός · '+B.rounds[i].t)})}
+  B.P.forEach(p=>add(p,99,'Σε εξέλιξη'));
+  return out.sort((a,b)=>a.r-b.r||B.P.indexOf(a.p)-B.P.indexOf(b.p))}
+const stTiles=(key,st)=>st.map((s,i)=>tileH(s.r,i,s.p.n,s.p.sc,esc(s.t)+(s.p.sub?' · '+esc(s.p.sub):''),BTYPE(key)!=='i')).join('');
+function podium(key){const B=bracket(key);
+  if(B){const st=standings(key).filter(x=>x.r<=3);if(st.length)return{src:'Ολυμπιακοί γύροι',it:st.map(x=>({r:x.r,n:x.p.n,sub:x.p.sub}))}}
+  const q=qual(key).slice(0,3);return q.length?{src:'Κατάταξη (χωρίς διασταύρωση)',it:q.map((p,i)=>({r:i+1,n:p.n,sub:p.sub}))}:null}
+function secData(kind){const max=S.cfg.ends*S.cfg.arrows,o=[];
+  if(kind==='ind')['M','F',''].forEach(g=>{const L=ranked(list().filter(a=>(a.g||'')===g));if(L.length)o.push({t:GN[g],c:GC[g],it:L.map(a=>({r:a.r,t:a.n,sc:tot(a),sub:`${a.t?a.t+' · ':''}${a.tm?a.tm+' · ':''}${a.s.length} από ${max} βέλη`}))})});
+  else if(kind==='team')['M','F',''].forEach(g=>{const T=rankT(teams(g));if(T.length)o.push({t:GT[g],c:GC[g],tm:1,it:T.map(x=>({r:x.r,t:x.n,sc:x.sum,sub:`${x.ar} από ${x.m*max} βέλη`}))})});
+  else{const T=rankT(mixTeams());if(T.length)o.push({t:'⚤ Μεικτό ομαδικό',c:'x',tm:1,it:T.map(x=>({r:x.r,t:x.n,sc:x.sum,sub:`${x.ar} από ${x.m*max} βέλη`}))})}
+  return o}
+/* --- ζωγραφική σελίδων (canvas) --- */
+const PW=1754,PH=1240,FF='"Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans",Arial,sans-serif',GOLD='#ffc22e';
+function dtx(x,t,X,Y,o){o=o||{};x.font=`${o.w||400} ${o.s||20}px ${FF}`;x.fillStyle=o.c||'#f2f4f8';x.textAlign=o.a||'left';x.textBaseline='alphabetic';t=String(t);
+  if(o.m&&x.measureText(t).width>o.m){while(t.length>1&&x.measureText(t+'…').width>o.m)t=t.slice(0,-1);t+='…'}x.fillText(t,X,Y)}
+function drr(x,X,Y,w,h,r,f,s){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();if(f){x.fillStyle=f;x.fill()}if(s){x.strokeStyle=s;x.lineWidth=2;x.stroke()}}
+function glow(x,X,Y,c,a){const g=x.createRadialGradient(X,Y,0,X,Y,760);g.addColorStop(0,`rgba(${c},${a})`);g.addColorStop(1,`rgba(${c},0)`);x.fillStyle=g;x.fillRect(0,0,PW,PH)}
+function np(D,title){const c=document.createElement('canvas');c.width=PW;c.height=PH;const x=c.getContext('2d');
+  x.fillStyle='#090c13';x.fillRect(0,0,PW,PH);x.strokeStyle='rgba(255,255,255,.035)';x.lineWidth=1;
+  for(let i=0;i<=PW;i+=48){x.beginPath();x.moveTo(i,0);x.lineTo(i,PH);x.stroke()}for(let j=0;j<=PH;j+=48){x.beginPath();x.moveTo(0,j);x.lineTo(PW,j);x.stroke()}
+  glow(x,PW,0,'255,170,30',.22);glow(x,0,PH,'40,90,200',.3);
+  if(title){dtx(x,'Archery Lab',60,76,{s:36,w:800,c:GOLD});dtx(x,'Score App',312,76,{s:22,c:'#98a2b3'});dtx(x,title,PW-60,76,{s:30,w:700,a:'right',m:1100});x.fillStyle='#262e3e';x.fillRect(60,98,PW-120,2)}
+  D.pages.push({c,x,cover:!title});D.x=x;D.y=title?140:0;D.t=title;return x}
+function tileDraw(x,X,Y,w,h,it,i,team){const C=['#e0a800','#9aa4ad','#b8702f'],ch=['#17694a','#2f7fd6','#8a4fc7','#c2410c','#0f7f8f','#a3366b'];
+  const bg=it.r<=3?C[it.r-1]:ch[i%6],fg=it.r===1||it.r===2?'#1a1a1a':'#fff';
+  drr(x,X,Y,w,h,18,bg);dtx(x,it.r>=99?'–':it.r,X+w-18,Y+56,{s:52,w:800,c:fg,a:'right'});
+  if(team)dtx(x,'ΟΜΑΔΑ',X+18,Y+26,{s:13,w:700,c:fg});
+  dtx(x,it.t,X+18,Y+(team?58:44),{s:team?28:26,w:800,c:fg,m:w-110});dtx(x,it.sc,X+18,Y+h-48,{s:56,w:800,c:fg});dtx(x,it.sub,X+18,Y+h-16,{s:15,c:fg,m:w-36})}
+function dBand(D,t,c,cont){const x=D.x,col={m:'#3b82f6',f:'#ec4899',x:GOLD}[c]||GOLD;drr(x,60,D.y,PW-120,48,10,'#151a25');x.fillStyle=col;x.fillRect(60,D.y,8,48);dtx(x,(t+(cont?' (συνέχεια)':'')).toUpperCase(),86,D.y+33,{s:22,w:800,c:col});D.y+=64}
+function dTiles(D,sec){const cols=4,gap=24,w=(PW-120-gap*(cols-1))/cols,h=150;let cont=false;
+  if(D.y+64+h>PH-70)np(D,D.t);dBand(D,sec.t,sec.c,false);
+  sec.it.forEach((it,i)=>{const c=i%cols;if(c===0&&i>0){D.y+=h+gap;if(D.y+h>PH-70){np(D,D.t);dBand(D,sec.t,sec.c,true)}}tileDraw(D.x,60+c*(w+gap),D.y,w,h,it,i,sec.tm)});
+  D.y+=h+40}
+function dTable(D,t,c,cols,rows){const rh=38;let i=0,cont=false;
+  do{if(D.y+130>PH-70)np(D,D.t);const x=D.x;dBand(D,t,c,cont);let cx=60;
+    cols.forEach(k=>{dtx(x,k.h,k.a==='c'?cx+k.w/2:cx+8,D.y+20,{s:15,w:700,c:'#98a2b3',a:k.a==='c'?'center':'left'});cx+=k.w});D.y+=32;
+    while(i<rows.length&&D.y+rh<PH-70){if(i%2===0){x.fillStyle='rgba(255,255,255,.05)';x.fillRect(60,D.y,PW-120,rh)}cx=60;
+      cols.forEach((k,j)=>{dtx(x,rows[i][j],k.a==='c'?cx+k.w/2:cx+8,D.y+26,{s:19,w:j===1?700:400,a:k.a==='c'?'center':'left',m:k.w-14});cx+=k.w});D.y+=rh;i++}
+    cont=true;if(i<rows.length)np(D,D.t)}while(i<rows.length);D.y+=30}
+function medalC(x,cx,cy,n,r){const c=['#e0a800','#9aa4ad','#b8702f'][n-1]||'#444';x.beginPath();x.arc(cx,cy,r,0,7);x.fillStyle=c;x.fill();dtx(x,n,cx,cy+r*.36,{s:r*1.05,w:800,c:'#1a1a1a',a:'center'})}
+function dCover(D){const x=np(D,null),cx=PW/2;
+  const g=x.createLinearGradient(cx-100,120,cx+100,320);g.addColorStop(0,'#ffc430');g.addColorStop(1,'#ff8400');drr(x,cx-100,120,200,200,50,g);
+  drr(x,cx-40,150,80,140,12,'#1a1200');drr(x,cx-32,158,64,26,6,'#ffb01e');
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++)drr(x,cx-32+c*23,194+r*29,18,20,5,'#ffb01e');
+  dtx(x,'Archery Lab',cx,500,{s:120,w:800,c:GOLD,a:'center'});dtx(x,'Score App',cx,566,{s:44,w:600,a:'center'});
+  dtx(x,S.cfg.name,cx,672,{s:62,w:800,a:'center',m:1550});dtx(x,'Επίσημα αποτελέσματα',cx,716,{s:26,c:'#98a2b3',a:'center'});
+  const L=list(),nm=L.filter(a=>a.g==='M').length,nf=L.filter(a=>a.g==='F').length,tm=new Set(L.map(a=>a.tm).filter(Boolean)).size,ks=['M','F','TM','TF','MX'].filter(k=>S.br&&S.br[k]).map(k=>KL[k]).join(' · ');
+  const bx=[['Ημερομηνία',fd(S.cfg.date)],['Τοποθεσία',S.cfg.place||'—'],['Διοργάνωση',S.cfg.org||'—'],['Γύρος κατάταξης',`${S.cfg.ends} βολές × ${S.cfg.arrows} βέλη`],['Αθλητές',`${L.length} (♂ ${nm} · ♀ ${nf})`],['Ομάδες',tm||'—'],['Ολυμπιακοί γύροι',ks?'Recurve':'—'],['Κατηγορίες Ολυμπιακών',ks||'—']];
+  bx.forEach(([l,v],i)=>{const w=(PW-120-3*24)/4,X=60+(i%4)*(w+24),Y=780+Math.floor(i/4)*130;drr(x,X,Y,w,106,16,'#151a25','#262e3e');dtx(x,l.toUpperCase(),X+20,Y+34,{s:14,w:700,c:'#98a2b3',m:w-40});dtx(x,v,X+20,Y+78,{s:i===7?19:27,w:700,c:i===7?'#f2f4f8':GOLD,m:w-40})})}
+function dPodium(D){np(D,'Τελικά αποτελέσματα');const x=D.x,w=(PW-120-60)/3;let n=0;
+  ['M','F','TM','TF','MX'].forEach(k=>{const pd=podium(k);if(!pd)return;const X=60+(n%3)*(w+30),Y=140+Math.floor(n/3)*440,col={m:'#3b82f6',f:'#ec4899',x:GOLD}[KC[k]];n++;
+    drr(x,X,Y,w,410,18,'#151a25','#262e3e');x.fillStyle=col;x.fillRect(X,Y+24,8,52);dtx(x,KL[k].toUpperCase(),X+28,Y+52,{s:24,w:800,c:col,m:w-50});dtx(x,pd.src,X+28,Y+76,{s:15,c:'#98a2b3'});
+    pd.it.forEach((it,i)=>{const yy=Y+100+i*100;medalC(x,X+60,yy+40,it.r,32);dtx(x,it.n,X+110,yy+38,{s:30,w:800,m:w-140});dtx(x,it.sub||'',X+110,yy+66,{s:17,c:'#98a2b3',m:w-140})})})}
+function dBracket(D,key){const B=bracket(key);if(!B)return;const R=B.rounds.length,x=np(D,'Ολυμπιακοί γύροι · '+KL[key]),gap=46,mg=60,cw=Math.min(380,(PW-2*mg-(R-1)*gap)/R),tw=R*cw+(R-1)*gap,ox=(PW-tw)/2,y0=200,y1=PH-70,ch=92;
+  const st=standings(key).filter(s=>s.r<=3);let px=60;st.forEach(s=>{medalC(x,px+18,128,s.r,17);dtx(x,s.p.n,px+44,136,{s:22,w:700,m:360});px+=44+Math.min(360,x.measureText(s.p.n).width)+50});
+  const cen=[];B.rounds.forEach((r,ri)=>{cen[ri]=r.ms.map((_,i)=>ri===0?y0+(y1-y0)*(i+.5)/r.ms.length:(cen[ri-1][2*i]+cen[ri-1][2*i+1])/2)});
+  x.strokeStyle='#3a4256';x.lineWidth=2;
+  B.rounds.forEach((r,ri)=>{if(!ri)return;const px2=ox+(ri-1)*(cw+gap)+cw,nx=ox+ri*(cw+gap),mid=px2+gap/2;r.ms.forEach((m,i)=>{const a=cen[ri-1][2*i],b=cen[ri-1][2*i+1],c=cen[ri][i];x.beginPath();x.moveTo(px2,a);x.lineTo(mid,a);x.lineTo(mid,b);x.lineTo(px2,b);x.moveTo(mid,c);x.lineTo(nx,c);x.stroke()})});
+  const card=(X,cy,m)=>{const T=cy-ch/2;drr(x,X,T,cw,ch,12,'#151a25','#262e3e');const ok=m.a&&m.b&&!m.bye;
+    [[m.a,m.cl.pa],[m.b,m.cl.pb]].forEach(([p,sc],i)=>{const yy=T+i*34;if(p&&m.w===p){x.fillStyle='rgba(255,194,46,.22)';x.fillRect(X+2,yy+(i?0:2),cw-4,34-(i?2:0)-(i?0:0))}
+      const bye=!p&&m.bye&&i===1;dtx(x,p?B.P.indexOf(p)+1:'',X+10,yy+24,{s:13,c:'#98a2b3'});dtx(x,p?p.n:bye?'BYE':'—',X+34,yy+24,{s:20,w:p&&m.w===p?800:500,c:p?'#f2f4f8':'#6b7280',m:cw-96});
+      if(ok||(p&&m.bye&&false))dtx(x,sc+(p&&m.w===p&&m.cl.needSO?' SO':''),X+cw-10,yy+24,{s:20,w:800,c:p&&m.w===p?GOLD:'#f2f4f8',a:'right'})});
+    const sl=m.res?(m.res.sets||[]).filter(s=>s.a.length&&s.b.length).map(s=>ksum(s.a)+'-'+ksum(s.b)).join('  ')+(m.res.so&&m.res.so.a.length?'  SO '+ksum(m.res.so.a)+'-'+ksum(m.res.so.b):''):'';
+    if(sl)dtx(x,sl,X+10,T+ch-8,{s:13,c:'#98a2b3',m:cw-20})};
+  B.rounds.forEach((r,ri)=>{const X=ox+ri*(cw+gap);dtx(x,r.t.toUpperCase(),X+cw/2,y0-34,{s:17,w:800,c:GOLD,a:'center'});r.ms.forEach((m,i)=>card(X,cen[ri][i],m))});
+  if(B.bronze){const X=ox+(R-1)*(cw+gap),cy=cen[R-1][0]+190;dtx(x,'ΑΓΩΝΑΣ ΧΑΛΚΙΝΟΥ',X+cw/2,cy-ch/2-14,{s:17,w:800,c:GOLD,a:'center'});card(X,cy,B.bronze)}}
+function dRoster(D){const E=S.cfg.ends,A=S.cfg.arrows,ew=E<=13?Math.min(70,(PW-120-885)/E):0;
+  ['M','F',''].forEach(g=>{const L=ranked(list().filter(a=>(a.g||'')===g));if(!L.length)return;
+    const cols=[{h:'#',w:55,a:'c'},{h:'ΑΘΛΗΤΗΣ',w:290},{h:'ΣΤΟΧΟΣ',w:90,a:'c'},{h:'ΟΜΑΔΑ',w:240},...(ew?Array.from({length:E},(_,i)=>({h:'Β'+(i+1),w:ew,a:'c'})):[]),{h:'ΣΥΝ.',w:90,a:'c'},{h:'X',w:60,a:'c'},{h:'10',w:60,a:'c'}];
+    const k=PW-120-cols.reduce((t,c)=>t+c.w,0);cols[3].w+=k;
+    dTable(D,'Γύρος κατάταξης · '+GN[g].replace('Λοιποί','Λοιποί αθλητές'),GC[g],cols,L.map(a=>[a.r,a.n,a.t||'',a.tm||'',...(ew?Array.from({length:E},(_,e)=>{const s=a.s.slice(e*A,e*A+A);return s.length?ksum(s):''}):[]),tot(a),cnt(a,'X'),cnt(a,'10')]))})}
+function makePDF(urls){const enc=s=>new TextEncoder().encode(s),parts=[],off=[];let len=0;const put=u=>{parts.push(u);len+=u.length};
+  const obj=(n,body)=>{off[n]=len;put(enc(n+' 0 obj\n'));(Array.isArray(body)?body:[body]).forEach(b=>put(typeof b==='string'?enc(b):b));put(enc('\nendobj\n'))};
+  const N=urls.length;put(enc('%PDF-1.4\n'));obj(1,'<</Type/Catalog/Pages 2 0 R>>');obj(2,'<</Type/Pages/Count '+N+'/Kids['+urls.map((_,i)=>(3+i*3)+' 0 R').join(' ')+']>>');
+  urls.forEach((u,i)=>{const b=Uint8Array.from(atob(u.split(',')[1]),c=>c.charCodeAt(0)),pg=3+i*3,cs='q 842 0 0 595 0 0 cm /I0 Do Q';
+    obj(pg,`<</Type/Page/Parent 2 0 R/MediaBox[0 0 842 595]/Resources<</XObject<</I0 ${pg+2} 0 R>>>>/Contents ${pg+1} 0 R>>`);obj(pg+1,`<</Length ${cs.length}>>\nstream\n${cs}\nendstream`);
+    obj(pg+2,[`<</Type/XObject/Subtype/Image/Width ${PW}/Height ${PH}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${b.length}>>\nstream\n`,b,'\nendstream'])});
+  const xr=len,n=3+N*3;let t='xref\n0 '+n+'\n0000000000 65535 f \n';for(let i=1;i<n;i++)t+=String(off[i]).padStart(10,'0')+' 00000 n \n';
+  put(enc(t+'trailer\n<</Size '+n+'/Root 1 0 R>>\nstartxref\n'+xr+'\n%%EOF'));const out=new Uint8Array(len);let p=0;parts.forEach(u=>{out.set(u,p);p+=u.length});return out}
+async function saveBin(u8,fn,ty){const nat=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()),Pl=n=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins[n];
+  if(nat&&Pl('Filesystem')&&Pl('Share')){try{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
+    const r=await Pl('Filesystem').writeFile({path:fn,data:btoa(s),directory:'CACHE'});await Pl('Share').share({title:fn,url:r.uri,dialogTitle:'Αποθήκευση PDF'});return}catch(e){if(/cancel/i.test((e&&e.message)||''))return;alert('Δεν ήταν δυνατή η αποθήκευση: '+((e&&e.message)||e))}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u8],{type:ty}));a.download=fn;a.click()}
+function exportPDF(){$('#md').innerHTML='<div class=ov><div class=card><b>Δημιουργία PDF…</b><p class=mut>Παρακαλώ περίμενε μερικά δευτερόλεπτα.</p></div></div>';
+  setTimeout(async()=>{try{const D={pages:[],x:null,y:0,t:''};dCover(D);dPodium(D);
+    [['ind','Κατάταξη · Ατομικά'],['team','Κατάταξη · Ομαδικά'],['mix','Κατάταξη · Μεικτό ομαδικό']].forEach(([k,t])=>{const s=secData(k);if(s.length){np(D,t);s.forEach(z=>dTiles(D,z))}});
+    np(D,'Γύρος κατάταξης · Αθλητές');dRoster(D);
+    ['M','F','TM','TF','MX'].forEach(k=>dBracket(D,k));
+    D.pages.forEach((p,i)=>{if(p.cover)return;dtx(p.x,`${S.cfg.name} · ${fd(S.cfg.date)}${S.cfg.place?' · '+S.cfg.place:''}`,60,PH-28,{s:16,c:'#6b7280',m:1200});dtx(p.x,`Σελίδα ${i+1} / ${D.pages.length}`,PW-60,PH-28,{s:16,c:'#6b7280',a:'right'})});
+    const u8=makePDF(D.pages.map(p=>p.c.toDataURL('image/jpeg',.88)));closeM();await saveBin(u8,'Archery-Lab-Apotelesmata-'+(S.cfg.date||new Date().toISOString().slice(0,10))+'.pdf','application/pdf')}
+  catch(e){closeM();alert('Αποτυχία δημιουργίας PDF: '+((e&&e.message)||e))}},60)}
+
+/* ---------- Ασφάλεια, παρέα, οδηγός, ιστορικό ---------- */
+var bkLast=0;
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m,b,fn,ms){const t=$('#tt');if(!t)return;t.innerHTML=`<span>${m}</span>${b?`<button id=tb>${b}</button>`:''}`;t.className='on';if(b)$('#tb').onclick=()=>{t.className='';fn()};clearTimeout(toast.h);toast.h=setTimeout(()=>{t.className=''},ms||6000)}
+function askM(m,ok,fn,danger){window._ask=fn;$('#md').innerHTML=`<div class=ov><div class="card sm"><b>${m}</b><div class=bar style="margin-top:14px"><button onclick=closeM()>Άκυρο</button><button class="${danger?'dg':'p'}" onclick="closeM();_ask()">${ok}</button></div></div></div>`}
+const stateJ=()=>JSON.stringify({ath:S.ath,br:S.br||{},cfg:S.cfg,hid:S.hid});
+let UNDO=null;
+const bks=()=>{try{return JSON.parse(localStorage.getItem('arch_bk')||'[]')}catch(e){return[]}};
+function bkPush(k,why){try{const L=bks();if(L[0]&&L[0].k===k)return;L.unshift({t:Date.now(),why,k,n:Object.keys(JSON.parse(k).ath||{}).length});localStorage.setItem('arch_bk',JSON.stringify(L.slice(0,8)))}catch(e){}}
+function bkTick(){if(Date.now()-bkLast<180000)return;bkLast=Date.now();if(Object.keys(S.ath||{}).length)bkPush(stateJ(),'Αυτόματο')}
+function snap(){try{UNDO=stateJ();bkPush(UNDO,'Πριν από αλλαγή')}catch(e){}}
+function applyState(k){const d=JSON.parse(k);S.ath=d.ath||{};S.br=d.br||{};S.cfg=Object.assign(S.cfg,d.cfg||{});S.hid=d.hid;cur=0;save();if(role==='tablet')bcast({t:'cfg',d:S.cfg});if(role==='phone')sendAll();render()}
+function undoDo(){if(UNDO){const k=UNDO;UNDO=null;applyState(k)}}
+function bkM(){const L=bks();$('#md').innerHTML=`<div class=ov><div class="card wide"><b>♻ Αντίγραφα ασφαλείας</b><p class=mut>Αποθηκεύονται αυτόματα στη συσκευή (τα τελευταία 8). Η επαναφορά μπορεί να αναιρεθεί.</p>${L.length?L.map((b,i)=>`<div class=li><div><b>${new Date(b.t).toLocaleString('el-GR')}</b><div class=mut>${esc(b.why)} · ${b.n} αθλητές</div></div><button onclick="bkRestore(${i})">Επαναφορά</button></div>`).join(''):'<p class=mut>Δεν υπάρχουν αντίγραφα ακόμα.</p>'}<div class=bar><button onclick=closeM()>Κλείσιμο</button></div></div></div>`}
+function bkRestore(i,quiet){const b=bks()[i];if(!b)return;const go=()=>{snap();applyState(b.k);toast('Έγινε επαναφορά','↶ Αναίρεση',undoDo,8000)};quiet?go():askM('Να γίνει επαναφορά αυτού του αντιγράφου;','Επαναφορά',go)}
+function reset(){askM('Να διαγραφούν όλα τα σκορ και οι διασταυρώσεις;','Διαγραφή',()=>{snap();S.ath={};S.br={};S.hid=null;cur=0;save();if(role==='tablet')bcast({t:'need'});render();toast('Ο αγώνας καθαρίστηκε','↶ Αναίρεση',undoDo,8000)},true)}
+/* γρήγορη προσθήκη & παρέα */
+const gOf=x=>/^(α|ά|a|m|man|male|ανδρας|άνδρας|ανδρες|άνδρες)$/i.test(x)?'M':/^(γ|f|w|woman|female|γυναικα|γυναίκα|γυναικες|γυναίκες)$/i.test(x)?'F':null;
+function parseList(txt,dt,dg){let rows=String(txt||'').split(/\n/).map(l=>l.trim()).filter(Boolean).map(l=>l.split(/[,;\t]/).map(x=>x.trim()).filter(Boolean));
+  if(rows.length===1&&rows[0].length>1&&!rows[0].slice(1).some(x=>gOf(x)))rows=rows[0].map(x=>[x]);
+  return rows.map(f=>{let g=dg||'',tm=dt||'';f.slice(1).forEach(x=>{const k=gOf(x);if(k)g=k;else tm=x});return{n:cap(f[0]),tm,g}})}
+function addMany(arr,nt){let n=Math.max(0,...Object.keys(S.ath).filter(k=>/^T\d+$/.test(k)).map(k=>+k.slice(1)));
+  const k0=nt?Object.values(S.ath).filter(a=>a.t&&a.t.slice(0,-1)===nt).length:0;
+  arr.forEach((o,k)=>{S.ath['T'+String(++n).padStart(3,'0')]={n:o.n,s:[],p:[],t:nt?(nt+'ABCDEFGH'[k0+k]).toUpperCase():'',tm:o.tm||'',g:o.g||''}});save();return n}
+function addA(){const arr=parseList($('#na').value,($('#nm2').value||'').trim(),$('#ng').value);if(!arr.length)return;const n=addMany(arr,($('#nt').value||'').trim());
+  cur=Object.keys(S.ath).sort().indexOf('T'+String(n).padStart(3,'0'));render();toast('Προστέθηκαν '+arr.length+' αθλητές')}
+function delA(){const a=list()[cur];if(a)askM('Διαγραφή του αθλητή «'+esc(a.n)+'»;','Διαγραφή',()=>{snap();delete S.ath[a.id];cur=0;save();render();toast('Ο αθλητής διαγράφηκε','↶ Αναίρεση',undoDo,8000)},true)}
+function autoTargets(){const L=list().filter(a=>!a.t);if(!L.length)return 0;let mx=0;list().forEach(a=>{const m=/^(\d+)/.exec(a.t||'');if(m)mx=Math.max(mx,+m[1])});
+  L.forEach((a,i)=>{const t=(mx+1+Math.floor(i/4))+'ABCD'[i%4];S.ath[a.id].t=t;S.ath[a.id].ed=1;bcast({t:'meta',id:a.id,m:{n:a.n,t,tm:a.tm||'',g:a.g||''}})});save();return L.length}
+function autoT(){const c=autoTargets();render();toast(c?`Κατανομή σε στόχους (ανά 4): ${c} αθλητές`:'Όλοι οι αθλητές έχουν ήδη στόχο')}
+const rost=()=>{try{return JSON.parse(localStorage.getItem('arch_roster')||'[]')}catch(e){return[]}},rostSave=r=>{try{localStorage.setItem('arch_roster',JSON.stringify(r))}catch(e){}};
+const rostLines=()=>rost().map(r=>[r.n,r.tm,r.g==='M'?'Α':r.g==='F'?'Γ':''].filter((x,i)=>i===0||x).join(', ')).join('\n');
+function rosterM(){const R=rost(),cu=list();$('#md').innerHTML=`<div class=ov><div class="card wide"><b>⭐ Παρέα</b><p class=mut>Οι αθλητές που παίζετε συχνά. Επίλεξε ποιοι συμμετέχουν στον αγώνα.</p>
+  ${R.length?`<div class=chk>${R.map((r,i)=>`<label class=ck><input type=checkbox class=rc value=${i} checked> ${esc(r.n)} <span class=mut>${esc(r.tm||'')}${r.g?' · '+GL(r.g):''}</span></label>`).join('')}</div>`:'<p class=mut>Η παρέα είναι άδεια. Πρόσθεσε αθλητές στον αγώνα και πάτα «Αποθήκευση τωρινών αθλητών».</p>'}
+  <div class=bar>${R.length?'<button class=p onclick=rosterAdd()>➕ Προσθήκη στον αγώνα</button><button class=dg onclick=rosterDel()>🗑 Διαγραφή επιλεγμένων</button>':''}${cu.length?'<button onclick=rosterSaveCur()>💾 Αποθήκευση τωρινών αθλητών</button>':''}<button onclick=closeM()>Κλείσιμο</button></div></div></div>`}
+const rcSel=()=>[...document.querySelectorAll('.rc')].filter(c=>c.checked).map(c=>+c.value);
+function rosterAdd(){const R=rost(),sel=rcSel().map(i=>R[i]).filter(Boolean);if(!sel.length)return;const have=new Set(list().map(a=>a.n.toLowerCase())),add=sel.filter(r=>!have.has(r.n.toLowerCase()));
+  if(add.length)addMany(add);closeM();render();toast(`Προστέθηκαν ${add.length} αθλητές`+(sel.length>add.length?` (${sel.length-add.length} υπήρχαν ήδη)`:''))}
+function rosterDel(){const s=new Set(rcSel());rostSave(rost().filter((_,i)=>!s.has(i)));rosterM()}
+function rosterSaveCur(){const R=rost();list().forEach(a=>{const i=R.findIndex(r=>r.n.toLowerCase()===a.n.toLowerCase()),o={n:a.n,tm:a.tm||'',g:a.g||''};if(i>=0)R[i]=o;else R.push(o)});rostSave(R);rosterM();toast('Η παρέα αποθηκεύτηκε ('+R.length+' αθλητές)')}
+/* οδηγός νέου αγώνα */
+const PRE=[{n:'Σύντομος',e:5,a:3,d:'15 βέλη'},{n:'Φιλικός',e:10,a:3,d:'30 βέλη'},{n:'Εσωτερικού 18μ',e:20,a:3,d:'60 βέλη'},{n:'Standard 70μ',e:12,a:6,d:'72 βέλη'}];
+let W=null,WZ=0;
+function wizRost(){W.names=(W.names?W.names+'\n':'')+rostLines();wizM(2)}
+function wizM(step){if(!W)W={step:1,name:'Φιλική συνάντηση',date:today(),e:10,a:3,names:'',auto:true};if(step)W.step=step;const s=W.step;
+  const dots=[1,2,3].map(i=>`<span class="dot ${i===s?'on':i<s?'dn':''}">${i}</span>`).join('<i></i>');let body='';
+  if(s===1)body=`<label>Όνομα συνάντησης<input value="${esc(W.name)}" oninput="W.name=this.value"></label><label style="margin-top:8px">Ημερομηνία<input type=date value="${W.date}" oninput="W.date=this.value"></label>
+    <p class=mut style="margin:12px 0 6px">Διάλεξε μορφή:</p><div class=pre>${PRE.map(p=>`<button class="${W.e===p.e&&W.a===p.a?'on':''}" onclick="W.e=${p.e};W.a=${p.a};wizM()"><b>${p.n}</b><small>${p.e} βολές × ${p.a} βέλη · ${p.d}</small></button>`).join('')}</div>
+    <div class=row style="margin-top:10px"><label>Βολές<input type=number min=1 max=72 value=${W.e} onchange="W.e=Math.max(1,+this.value||1);wizM()"></label><label>Βέλη ανά βολή<input type=number min=1 max=12 value=${W.a} onchange="W.a=Math.max(1,+this.value||1);wizM()"></label></div>`;
+  else if(s===2)body=`<label>Αθλητές – ένας ανά γραμμή<textarea id=wn rows=7 placeholder="Νίκος&#10;Μαρία, Αετοί, Γ&#10;Γιώργος, Λύκοι, Α" oninput="W.names=this.value">${esc(W.names)}</textarea></label>
+    <p class=mut>Προαιρετικά: <b>Όνομα, Ομάδα, Α/Γ</b> (Α = άνδρας, Γ = γυναίκα). Ομάδα και φύλο χρειάζονται μόνο για ομαδικά.</p>
+    ${rost().length?'<div class=bar><button onclick=wizRost()>⭐ Φόρτωση παρέας</button></div>':''}
+    <label class=ck><input type=checkbox ${W.auto?'checked':''} onchange="W.auto=this.checked"> Κατανομή σε στόχους (ανά 4: 1A–1D, 2A–2D…)</label>`;
+  else body=`<div class=sum><div><span>Συνάντηση</span><b>${esc(W.name)}</b></div><div><span>Μορφή</span><b>${W.e} × ${W.a} = ${W.e*W.a} βέλη</b></div><div><span>Αθλητές</span><b>${parseList(W.names).length}</b></div></div>
+    <p>Θες να συνδέσεις κινητά αθλητών; Αλλιώς βαθμολογείς όλους από την ταμπλέτα.</p><div class=bar><button class=p onclick="wizDone(true)">📱 Έναρξη και σύνδεση κινητού</button><button onclick="wizDone(false)">▶ Έναρξη χωρίς κινητά</button></div>`;
+  $('#md').innerHTML=`<div class=ov><div class="card wide"><div class=steps>${dots}</div><b class=wt>${['','Η συνάντηση','Οι αθλητές','Έτοιμοι!'][s]}</b>${body}
+    <div class=bar style="margin-top:14px">${s>1?`<button onclick="wizM(${s-1})">‹ Πίσω</button>`:'<button onclick="W=null;closeM()">Άκυρο</button>'}${s<3?`<button class=p onclick="wizM(${s+1})">Επόμενο ›</button>`:''}</div></div></div>`}
+function wizDone(connect){const w=W;if(!w)return;const had=Object.values(S.ath).some(a=>a.s&&a.s.length);if(had)archive();snap();
+  S.ath={};S.br={};S.hid=null;S.cfg=Object.assign(S.cfg,{name:w.name.trim()||'Αγώνας',date:w.date,ends:w.e,arrows:w.a});
+  addMany(parseList(w.names));if(w.auto)autoTargets();cur=0;save();W=null;closeM();tv='score';if(role==='tablet'){bcast({t:'cfg',d:S.cfg});bcast({t:'need'})}render();
+  toast(had?'Ο προηγούμενος αγώνας αποθηκεύτηκε στο ιστορικό':'Ο αγώνας ξεκίνησε');if(connect)setTimeout(addPhone,200)}
+function wizHome(){WZ=1;setRole('tablet');wizM(1)}
+/* ιστορικό & στατιστικά */
+const hist=()=>{try{return JSON.parse(localStorage.getItem('arch_hist')||'[]')}catch(e){return[]}},histSave=H=>{try{localStorage.setItem('arch_hist',JSON.stringify(H))}catch(e){}};
+function archive(){const L=Object.values(S.ath).filter(a=>a.s&&a.s.length);if(!L.length)return false;const H=hist(),id=S.hid||(S.hid='h'+Date.now().toString(36));
+  const e={id,ts:Date.now(),name:S.cfg.name,date:S.cfg.date||today(),cfg:{ends:S.cfg.ends,arrows:S.cfg.arrows},ath:Object.values(S.ath).map(a=>({n:cap(a.n),g:a.g||'',tm:a.tm||'',t:a.t||'',s:a.s.slice()}))};
+  const i=H.findIndex(x=>x.id===id);if(i>=0)H[i]=e;else H.unshift(e);histSave(H.slice(0,60));save();return true}
+function finishEv(){if(archive())toast('Ο αγώνας αποθηκεύτηκε στο ιστορικό','📊 Προβολή',()=>{tv='hist';render()},8000);else toast('Δεν υπάρχουν σκορ για αποθήκευση')}
+function evRank(e){const A=e.ath.map(a=>({...a,tot:a.s.reduce((t,v)=>t+val(v),0),x:a.s.filter(v=>v==='X').length,t10:a.s.filter(v=>v==='10'||v==='X').length}));
+  A.sort((a,b)=>b.tot-a.tot||b.x-a.x||b.t10-a.t10);let r=0;A.forEach((a,i)=>{if(i===0||a.tot!==A[i-1].tot||a.x!==A[i-1].x||a.t10!==A[i-1].t10)r=i+1;a.r=r});return A}
+function histStats(){const m={};hist().forEach(e=>e.ath.forEach(a=>{if(!a.s.length)return;const k=a.n.trim().toLowerCase(),t=a.s.reduce((x,v)=>x+val(v),0),o=m[k]=m[k]||{n:a.n,ev:0,arrows:0,pts:0,x:0,t10:0,best:0,bestAvg:0,series:[]},avg=t/a.s.length;
+  o.ev++;o.arrows+=a.s.length;o.pts+=t;o.x+=a.s.filter(v=>v==='X').length;o.t10+=a.s.filter(v=>v==='10').length;o.series.push({ts:e.ts,avg});o.bestAvg=Math.max(o.bestAvg,avg);o.best=Math.max(o.best,t)}));return Object.values(m)}
+function spark(s){s=s.slice().sort((a,b)=>a.ts-b.ts).slice(-12);if(s.length<2)return '<div class=mut style="flex:1;text-align:right;font-size:12px">Χρειάζονται 2+ αγώνες για γράφημα</div>';
+  const mn=Math.min(...s.map(p=>p.avg)),mx=Math.max(...s.map(p=>p.avg)),r=mx-mn||1,pts=s.map((p,i)=>`${(i*(150/(s.length-1))+4).toFixed(1)},${(36-((p.avg-mn)/r)*30).toFixed(1)}`).join(' '),l=pts.split(' ').pop().split(',');
+  return `<svg viewBox="0 0 158 44" style="width:150px;flex:1;max-width:200px"><polyline points="${pts}" fill="none" stroke="#ffc22e" stroke-width="2.5" stroke-linejoin="round"/><circle cx="${l[0]}" cy="${l[1]}" r="4" fill="#ff8a00"/></svg>`}
+let hv='ev',hs=null;
+function histPage(){const H=hist();let h=`<div class=top><button class=lk onclick="tv='res';render()">‹ Πίσω</button><div class=mut>Ιστορικό & στατιστικά</div></div><div class=seg><button class="${hv==='ev'?'on':''}" onclick="hv='ev';hs=null;render()">📅 Αγώνες</button><button class="${hv==='pl'?'on':''}" onclick="hv='pl';render()">👤 Αθλητές</button></div>`;
+  if(!H.length)return h+'<div class="card empty"><div class=big2e>📊</div><b>Δεν υπάρχουν αποθηκευμένοι αγώνες</b><p class=mut>Όταν ολοκληρώσεις έναν αγώνα («☰ Μενού → 🏁 Ολοκλήρωση αγώνα») ή ξεκινήσεις νέο, αποθηκεύεται εδώ και χτίζονται τα στατιστικά.</p></div>';
+  if(hv==='ev'){const e=hs&&H.find(x=>x.id===hs);
+    if(e){const R=evRank(e);return h+`<div class=card><b>${esc(e.name)}</b><div class=mut>${fd(e.date)} · ${e.cfg.ends}×${e.cfg.arrows} · ${e.ath.length} αθλητές</div></div><div class=tiles>${R.map((a,i)=>tileH(a.r,i,a.n,a.tot,`${a.tm?esc(a.tm)+' · ':''}${a.s.length} βέλη · μ.ό. ${(a.tot/Math.max(1,a.s.length)).toFixed(2)}`)).join('')}</div>
+      <div class=bar style="margin-top:12px"><button onclick="hs=null;render()">‹ Λίστα</button><button class=p onclick="histLoad('${e.id}')">↩ Άνοιγμα ως τρέχων</button><button class=dg onclick="histDel('${e.id}')">🗑 Διαγραφή</button></div>`}
+    return h+H.map(e=>`<div class="card li2" onclick="hs='${e.id}';render()"><div><b>${esc(e.name)}</b><div class=mut>${fd(e.date)} · ${e.ath.length} αθλητές · ${e.cfg.ends}×${e.cfg.arrows}</div></div><div class=pod>${evRank(e).slice(0,3).map((a,i)=>`<span>${['🥇','🥈','🥉'][i]} ${esc(a.n)} <b>${a.tot}</b></span>`).join('')}</div></div>`).join('')}
+  const P=histStats().sort((a,b)=>b.ev-a.ev||b.pts/b.arrows-a.pts/a.arrows);
+  return h+P.map(p=>`<div class=card><div class=row style="align-items:center"><div style="flex:2"><b>${esc(p.n)}</b><div class=mut>${p.ev} αγώνες · ${p.arrows} βέλη</div></div>${spark(p.series)}</div>
+    <div class=st4><div><span>Μ.Ο. βέλους</span><b>${(p.pts/p.arrows).toFixed(2)}</b></div><div><span>Καλύτερος αγώνας (μ.ο.)</span><b>${p.bestAvg.toFixed(2)}</b></div><div><span>Καλύτερο σκορ</span><b>${p.best}</b></div><div><span>X / 10</span><b>${p.x} / ${p.t10}</b></div></div></div>`).join('')}
+function histLoad(id){const e=hist().find(x=>x.id===id);if(!e)return;askM('Ο τρέχων αγώνας θα αντικατασταθεί (αποθηκεύεται πρώτα). Συνέχεια;','Άνοιγμα',()=>{if(Object.values(S.ath).some(a=>a.s.length))archive();snap();
+  S.ath={};e.ath.forEach((a,i)=>{S.ath['T'+String(i+1).padStart(3,'0')]={n:a.n,s:a.s.slice(),p:[],t:a.t||'',tm:a.tm||'',g:a.g||''}});S.br={};S.hid=e.id;S.cfg=Object.assign(S.cfg,{name:e.name,date:e.date,ends:e.cfg.ends,arrows:e.cfg.arrows});cur=0;save();tv='score';render();toast('Ο αγώνας άνοιξε','↶ Αναίρεση',undoDo,8000)})}
+function histDel(id){askM('Διαγραφή αυτού του αγώνα από το ιστορικό;','Διαγραφή',()=>{histSave(hist().filter(x=>x.id!==id));hs=null;render()},true)}
+/* κινήσεις */
+function flipSet(el,html){const old={};el.querySelectorAll('.tile[data-k]').forEach(t=>{const r=t.getBoundingClientRect(),s=t.querySelector('.ts');old[t.dataset.k]={x:r.left,y:r.top,s:s&&s.textContent}});
+  el.innerHTML=html;el.querySelectorAll('.tile[data-k]').forEach(t=>{const o=old[t.dataset.k];if(!o)return;const r=t.getBoundingClientRect(),dx=o.x-r.left,dy=o.y-r.top;
+    if(dx||dy){t.style.transition='none';t.style.transform=`translate(${dx}px,${dy}px)`;requestAnimationFrame(()=>requestAnimationFrame(()=>{t.style.transition='transform .55s cubic-bezier(.2,.8,.2,1)';t.style.transform=''}))}
+    const s=t.querySelector('.ts');if(s&&o.s!=null&&s.textContent!==o.s)s.classList.add('pop')})}
+function confetti(){const w=document.createElement('div');w.className='cfw';const c=['#ffc22e','#ff8a00','#3b82f6','#ec4899','#4cc38a','#ffffff'];
+  for(let i=0;i<60;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}%;background:${c[i%6]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;w.appendChild(e)}
+  document.body.appendChild(w);setTimeout(()=>w.remove(),5000)}
+function initHints(){if(!Object.keys(S.ath).length){if(role==='tablet'){WZ=1;setTimeout(()=>wizM(1),400)}else{const b=bks().find(x=>x.n);if(b)toast('Βρέθηκε αντίγραφο ασφαλείας ('+new Date(b.t).toLocaleDateString('el-GR')+')','Επαναφορά',()=>bkRestore(bks().indexOf(b),true),10000)}}}
+
+/* ---------- Shoot-off & εξαγωγές ---------- */
+function soM(){const g={};ranked().forEach(a=>{const k=[a.g||'',tot(a),cnt(a,'X'),cnt(a,'10')+cnt(a,'X')].join();(g[k]=g[k]||[]).push(a)});
+  const T=Object.values(g).filter(x=>x.length>1);
+  $('#md').innerHTML=`<div class=ov><div class=card><b>⚔ Shoot-off</b><p class=mut>Ισοβαθμίες (ίδιο σύνολο, X και 10+X). Βάλε το βέλος του shoot-off κάθε αθλητή.</p>
+  ${T.length?T.map(x=>`<div class=card>${x.map(a=>`<div style="margin-bottom:8px"><b>${esc(lab(a))}</b> ${a.so!=null?`<span class="cell ${cls(a.so)}">${a.so}</span>`:''}<div class=kr>${KEYS.map(k=>`<button class="${cls(k)}" onclick="soSet('${a.id}','${k}')">${k}</button>`).join('')}<button onclick="soSet('${a.id}',null)">✕</button></div></div>`).join('')}</div>`).join(''):'<p>Δεν υπάρχουν ισοβαθμίες.</p>'}
+  <div class=bar><button onclick=closeM()>Κλείσιμο</button></div></div></div>`}
+function soSet(id,v){if(v==null)delete S.ath[id].so;else S.ath[id].so=v;save();renderRank();soM()}
+function expM(){$('#md').innerHTML=`<div class=ov><div class=card><b>📄 Εξαγωγή αποτελεσμάτων</b><div class=bar style="margin-top:10px"><button class=p onclick="dl(csv(),'apotelesmata.csv','text/csv')">Λήψη CSV (Excel)</button><button class=p onclick="closeM();exportPDF()">🏆 PDF παρουσίαση (πλήρης)</button><button onclick="closeM();printRes()">Εκτύπωση πινάκων</button></div><p class=mut>Στην εκτύπωση επίλεξε «Αποθήκευση ως PDF» για αρχείο PDF.</p><div class=bar><button onclick=closeM()>Κλείσιμο</button></div></div></div>`}
+function dl(t,fn,ty){saveFile(t,fn,ty)}
+function csv(){const E=S.cfg.ends,A=S.cfg.arrows,q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const h=['Θέση','Στόχος','Αθλητής','Ομάδα','Φύλο','Σύνολο','X','10','Shoot-off','Βέλη',...Array.from({length:E},(_,i)=>'Βολή '+(i+1))];
+  const r=ranked().map(a=>[a.r,a.t||'',a.n,a.tm||'',GL(a.g),tot(a),cnt(a,'X'),cnt(a,'10'),a.so||'',a.s.length,...Array.from({length:E},(_,e)=>{const g=a.s.slice(e*A,e*A+A);return g.length?g.join(' ')+' = '+g.reduce((t,v)=>t+val(v),0):''})]);
+  return '\ufeff'+[h,...r].map(x=>x.map(q).join(';')).join('\r\n')}
+function printRes(){const L=ranked(),E=S.cfg.ends,A=S.cfg.arrows;
+  let h=`<h1>Archery Lab – ${esc(S.cfg.name)}</h1><p>${new Date().toLocaleString('el-GR')} · ${E} βολές × ${A} βέλη</p><h2>Ατομική κατάταξη</h2><table class=pt><tr><th>Θέση</th><th>Στόχος</th><th>Αθλητής</th><th>Ομάδα</th><th>Φύλο</th><th>X</th><th>10</th><th>Σύνολο</th></tr>`+
+  L.map(a=>`<tr><td>${a.r}</td><td>${esc(a.t||'')}</td><td>${esc(a.n)}</td><td>${esc(a.tm||'')}</td><td>${GL(a.g)}</td><td>${cnt(a,'X')}</td><td>${cnt(a,'10')}</td><td><b>${tot(a)}</b>${a.so?' (SO '+a.so+')':''}</td></tr>`).join('')+'</table>';
+  [['M','Ομάδες Ανδρών'],['F','Ομάδες Γυναικών'],['','Ομάδες']].forEach(([g,t])=>{const T=rankT(teams(g));if(T.length)h+=`<h2>${t} (άθροισμα 3 καλύτερων)</h2>`+ttab(T)});const MX=rankT(mixTeams());if(MX.length)h+='<h2>Μεικτό ομαδικό (1 άνδρας + 1 γυναίκα)</h2>'+ttab(MX);
+  h+='<h2>Δελτία βολών</h2>'+L.map(a=>{let run=0;return `<div class=pg><h3>${a.r}. ${esc(lab(a))}${a.tm?' – '+esc(a.tm):''} : ${tot(a)}</h3><table class=pt><tr><th>Βολή</th>${Array.from({length:A},(_,j)=>`<th>${j+1}</th>`).join('')}<th>Σύν.</th><th>Σωρ.</th></tr>`+Array.from({length:E},(_,e)=>{const g=a.s.slice(e*A,e*A+A),sm=g.reduce((t,v)=>t+val(v),0);if(g.length)run+=sm;return `<tr><td>${e+1}</td>${Array.from({length:A},(_,j)=>`<td>${g[j]||''}</td>`).join('')}<td>${g.length?sm:''}</td><td>${g.length?run:''}</td></tr>`}).join('')+'</table></div>'}).join('');
+  if(native()){saveFile('<!DOCTYPE html><html lang=el><head><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Αποτελέσματα</title><style>body{font:14px system-ui,sans-serif;margin:16px}.pt{border-collapse:collapse;width:100%;margin:6px 0 14px}.pt td,.pt th{border:1px solid #888;padding:3px 8px;text-align:center}.pg{page-break-inside:avoid}</style></head><body>'+h+'</body></html>','apotelesmata.html','text/html');return}
+  $('#pr').innerHTML=h;setTimeout(()=>window.print(),150)}
+
+/* ---------- Αρχική ---------- */
+function hdr(){return `<div class="hd ${role?'sm':''}"><div class=tb><button onclick=toggleTheme() title="Dark/Light">◐</button><button onclick=fs() title="Πλήρης οθόνη">⛶</button></div><div class=brand>Archery Lab</div><div class=sub>Score App</div></div>`}
+let th='dark';try{th=localStorage.getItem('th')||'dark'}catch(e){}
+const applyTh=()=>{document.documentElement.dataset.theme=th;const m=document.querySelector('meta[name=theme-color]');if(m)m.content=th==='dark'?'#090c13':'#f5f2ea'};applyTh();
+function toggleTheme(){th=th==='dark'?'light':'dark';try{localStorage.setItem('th',th)}catch(e){}applyTh()}
+function fs(){const d=document,e=d.documentElement;
+  if(native()&&P('StatusBar')){fsN=!fsN;try{P('StatusBar')[fsN?'hide':'show']()}catch(x){}return}
+  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+  else{const f=e.requestFullscreen||e.webkitRequestFullscreen;if(f)f.call(e);else alert('Πλήρης οθόνη: στο iPhone άνοιξε το μενού κοινής χρήσης και επίλεξε «Προσθήκη στην αρχική οθόνη».')}}
+function home(){const n=Object.keys(S.ath).length;return `<div class=ico><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc430"/><stop offset="1" stop-color="#ff8400"/></linearGradient></defs><rect x="4" y="4" width="92" height="92" rx="24" fill="url(#ig)"/><rect x="30" y="20" width="40" height="60" rx="5.5" fill="#1a1200"/><rect x="33.5" y="23.5" width="33" height="13" rx="2.5" fill="#ffb01e"/><rect x="33.5" y="41.0" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="45.2" y="41.0" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="56.9" y="41.0" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="33.5" y="53.7" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="45.2" y="53.7" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="56.9" y="53.7" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="33.5" y="66.4" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="45.2" y="66.4" width="9.6" height="8.4" rx="2" fill="#ffb01e"/><rect x="56.9" y="66.4" width="9.6" height="8.4" rx="2" fill="#ffb01e"/></svg></div>
+${n?`<button class="hc resume" onclick="setRole(S.lastRole||'tablet')"><i>▶</i><div><b>Συνέχεια αγώνα</b><small>${esc(S.cfg.name)} · ${n} αθλητές</small></div><span>›</span></button>`:''}
+<button class="hc p" onclick="setRole('tablet')"><i>🖥</i><div><b>Ταμπλέτα</b><small>Κατάταξη, ρυθμίσεις αγώνα και βαθμολόγηση όλων των αθλητών</small></div><span>›</span></button>
+<button class="hc" onclick="setRole('phone')"><i>📱</i><div><b>Κινητό αθλητών</b><small>Σκοράρισμα έως 4 αθλητών και σύνδεση με QR</small></div><span>›</span></button>
+<div class=chips><button class=chip onclick=wizHome()>✨ Νέος αγώνας</button><button class=chip onclick="tv='hist';setRole('tablet')">📊 Ιστορικό</button><button class=chip onclick=bkM()>♻ Αντίγραφα</button></div>`}
+
+function render(){
+  $('#app').innerHTML=hdr()+(role==='tablet'?(tv==='ko'?koPage():tv==='hist'?histPage():tabletView()):role==='phone'?phoneView():home())+'<input type=file id=f accept=".json,application/json" hidden onchange="loadF(this)">';
+  if(role==='tablet')renderRank();updSt()
+}
+render();initHints();
+</script></body></html>
